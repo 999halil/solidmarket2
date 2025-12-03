@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoLiD ACL Check</title>
+</head>
+
+<body>
+    <h1>Checking Write Access...</h1>
+    <script type="module">
+        import { getFileWithAcl, getAgentAccess } from "https://cdn.jsdelivr.net/npm/@inrupt/solid-client@2.4.1/+esm";
+        import { Session } from "https://cdn.jsdelivr.net/npm/@inrupt/solid-client-authn-browser@2.4.1/+esm";
+
+        const checkWriteAccess = async (session, folderUrl) => {
+            try {
+                const folderWithAcl = await getFileWithAcl(folderUrl, { fetch: session.fetch });
+                const userWebID = session.info.webId;
+                const access = await getAgentAccess(folderWithAcl, userWebID);
+                console.log(`Write access for ${folderUrl}:`, access?.write ? "✅ Yes" : "❌ No");
+            } catch (error) {
+                console.error("Error checking ACLs:", error);
+            }
+        };
+
+        (async () => {
+            const session = new Session();
+            await session.handleIncomingRedirect({ restorePreviousSession: true });
+
+            checkWriteAccess(session, "https://marketoffer.solidcommunity.net/resources/");
+        })();
+    </script>
+</body>
+
+</html>
