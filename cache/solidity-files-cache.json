@@ -108,6 +108,114 @@
       "artifacts": [
         "Marketplace"
       ]
+    },
+    "C:\\Users\\halil\\OneDrive\\Desktop\\solidmarket2\\contracts\\FileIntegrity.sol": {
+      "lastModificationDate": 1764776742414,
+      "contentHash": "58b953f32ca6fa2ce2ff725cec7a3b3b",
+      "sourceName": "contracts/FileIntegrity.sol",
+      "solcConfig": {
+        "version": "0.8.28",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "FileIntegrity"
+      ]
+    },
+    "C:\\Users\\halil\\OneDrive\\Desktop\\solidmarket2\\contracts\\Lock.sol": {
+      "lastModificationDate": 1764776742414,
+      "contentHash": "642fa52ab63153524e2438211810ea7e",
+      "sourceName": "contracts/Lock.sol",
+      "solcConfig": {
+        "version": "0.8.28",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.28"
+      ],
+      "artifacts": [
+        "Lock"
+      ]
+    },
+    "C:\\Users\\halil\\OneDrive\\Desktop\\solidmarket2\\contracts\\Marketplace.sol": {
+      "lastModificationDate": 1764776742414,
+      "contentHash": "24173df8fc08ea24a6346dac897970ec",
+      "sourceName": "contracts/Marketplace.sol",
+      "solcConfig": {
+        "version": "0.8.28",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Marketplace"
+      ]
     }
   }
 }

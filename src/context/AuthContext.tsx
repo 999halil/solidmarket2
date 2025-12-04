@@ -36,9 +36,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const url = new URL(window.location.href);
     const hasAuthCode = url.searchParams.get("code");
     const hasState = url.searchParams.get("state");
-     await session.handleIncomingRedirect({
-      restorePreviousSession: true
-    });
 
     if (hasAuthCode && hasState) {
       await session.handleIncomingRedirect({ restorePreviousSession: false });
