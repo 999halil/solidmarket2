@@ -100,8 +100,14 @@ const FileManager: React.FC = () => {
                     </button>
                 </div>
             ))}
-
             <h2 style={{ marginTop: 40 }}>🛒 Active Listings (Blockchain)</h2>
+
+            <button
+                style={{ marginBottom: 10 }}
+                onClick={loadBlockchainListings}
+            >
+                🔄 Refresh Listings
+            </button>
 
             {listings.length === 0 && <p>No items listed.</p>}
 
@@ -116,6 +122,7 @@ const FileManager: React.FC = () => {
                     </button>
                 </div>
             ))}
+
 
             <h2 style={{ marginTop: 40 }}>⬆️ Upload New File</h2>
 
