@@ -140,6 +140,26 @@ export const logFileAcl = async (session: Session, fileUrl: string) => {
 };
 
 
+export async function grantBuyerReadAccess(
+  session: Session,
+  fileUrl: string,
+  buyerWebId: string
+) {
+  try {
+    const result = await access.setAgentAccess(
+      fileUrl,
+      buyerWebId,
+      { read: true }, // buyer gets read-only
+      { fetch: session.fetch }
+    );
+
+    console.log(`🔐 Buyer read access granted for: ${fileUrl}`, result);
+    return result;
+  } catch (err) {
+    console.error("❌ Failed to grant buyer read access:", err);
+    throw err;
+  }
+}
 export async function setFilePermissionsACP(session: Session, fileUrl: string) {
   try {
     const result = await access.setAgentAccess(fileUrl, session.info.webId!, {

@@ -5,7 +5,7 @@ import {
     computeSHA256,
     uploadFileToPod,
     listFilesInPod,
-    ensureContainerExists
+    ensureContainerExists,setFilePermissionsACP
 } from "../utils/solidHelper";
 
 import {
@@ -57,6 +57,9 @@ const FileManager: React.FC = () => {
         if (!selectedFile || !podUrl) return;
 
         const fileUrl = await uploadFileToPod(session, selectedFile, podUrl);
+        if (fileUrl){
+            await setFilePermissionsACP(session,fileUrl);
+        }
         await loadUploads();
         setSelectedFile(null);
     };
