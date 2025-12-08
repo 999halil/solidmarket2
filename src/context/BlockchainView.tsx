@@ -1,74 +1,68 @@
+// pages/BlockchainView.tsx
 import React, { useState } from "react";
-import { getFilePrice, verifyFileHash, loadAllBlockchainFiles } from "../utils/blockchainHelper";
+import {
+    getFilePrice,
+    verifyFileHash,
+    loadAllListings
+} from "../utils/blockchainHelper";
 
 const BlockchainView = () => {
-  const [fileUrl, setFileUrl] = useState("");
-  const [price, setPrice] = useState<string | null>(null);
-  const [hashInput, setHashInput] = useState("");
-  const [hashCheck, setHashCheck] = useState<boolean | null>(null);
+    const [fileUrl, setFileUrl] = useState("");
+    const [price, setPrice] = useState<string | null>(null);
+    const [hashInput, setHashInput] = useState("");
+    const [hashCheck, setHashCheck] = useState<boolean | null>(null);
 
-  const [allFiles, setAllFiles] = useState<any[]>([]);
+    const [allListings, setAllListings] = useState<any[]>([]);
 
-  const fetchPrice = async () => {
-    const result = await getFilePrice(fileUrl);
-    setPrice(result);
-  };
+    const loadListings = async () => {
+        const data = await loadAllListings();
+        setAllListings(data);
+    };
 
-  const checkHash = async () => {
-    const result = await verifyFileHash(fileUrl, hashInput);
-    setHashCheck(result);
-  };
+    return (
+        <div style={{ padding: "2rem" }}>
+            <h1>🔗 Blockchain Explorer</h1>
 
-  const loadFilesFromChain = async () => {
-    const files = await loadAllBlockchainFiles();
-    setAllFiles(files);
-  };
+            <h2>Check Stored Price</h2>
+            <input
+                value={fileUrl}
+                onChange={(e) => setFileUrl(e.target.value)}
+            />
+            <button onClick={async () => setPrice(await getFilePrice(fileUrl))}>
+                Get Price
+            </button>
+            {price && <p>Price: {price} ETH</p>}
 
-  return (
-    <div style={{ padding: "2rem" }}>
-      <h1>🔗 Blockchain Explorer</h1>
+            <h2 style={{ marginTop: 20 }}>Verify Hash</h2>
+            <input
+                value={hashInput}
+                onChange={(e) => setHashInput(e.target.value)}
+            />
+            <button
+                onClick={async () =>
+                    setHashCheck(await verifyFileHash(fileUrl, hashInput))
+                }
+            >
+                Verify
+            </button>
+            {hashCheck !== null && (
+                <p>{hashCheck ? "✔ Match" : "❌ Does not match"}</p>
+            )}
 
-      {/* --- PRICE CHECK --- */}
-      <h2>Check stored price</h2>
-      <input
-        value={fileUrl}
-        onChange={(e) => setFileUrl(e.target.value)}
-        placeholder="Enter file URL"
-      />
-      <button onClick={fetchPrice}>Get Price</button>
-      {price !== null && <p>Price: {price} ETH</p>}
+            <h2 style={{ marginTop: 20 }}>All Listings</h2>
+            <button onClick={loadListings}>Load Listings</button>
 
-      {/* --- HASH CHECK --- */}
-      <h2 style={{ marginTop: "2rem" }}>Verify stored file hash</h2>
-      <input
-        value={hashInput}
-        onChange={(e) => setHashInput(e.target.value)}
-        placeholder="Enter SHA-256 hash"
-      />
-      <button onClick={checkHash}>Verify Hash</button>
-      {hashCheck !== null && (
-        <p>Hash match: {hashCheck ? "✅ Valid" : "❌ Invalid"}</p>
-      )}
-
-      {/* --- ALL FILE LISTINGS --- */}
-      <h2 style={{ marginTop: "2rem" }}>All Files Stored On Blockchain</h2>
-      <button onClick={loadFilesFromChain}>Load Blockchain Data</button>
-
-      {allFiles.length > 0 && (
-        <div style={{ marginTop: "1rem" }}>
-          {allFiles.map((f, i) => (
-            <div key={i} style={{ padding: "1rem", border: "1px solid #ddd", marginBottom: "1rem" }}>
-              <p><strong>Wallet:</strong> {f.wallet}</p>
-              <p><strong>WebID:</strong> {f.webId}</p>
-              <p><strong>File URL:</strong> {f.fileUrl}</p>
-              <p><strong>Hash:</strong> {f.fileHash}</p>
-              <p><strong>Price:</strong> {f.price} ETH</p>
-            </div>
-          ))}
+            {allListings.map((l, i) => (
+                <div key={i} style={{ borderBottom: "1px solid #ccc", padding: 10 }}>
+                    <p><strong>File:</strong> {l.fileUrl}</p>
+                    <p><strong>Hash:</strong> {l.fileHash}</p>
+                    <p><strong>Price:</strong> {l.price} ETH</p>
+                    <p><strong>Lister WebID:</strong> {l.webId}</p>
+                    <p><strong>Wallet:</strong> {l.wallet}</p>
+                </div>
+            ))}
         </div>
-      )}
-    </div>
-  );
+    );
 };
 
 export default BlockchainView;

@@ -1,199 +1,136 @@
+// components/FileManager.tsx
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { computeSHA256, uploadFileToPod, listFilesInPod, logFileAcl, setFilePermissions, setFilePermissionsACP, setAppFullAccess } from "../utils/solidHelper";
-import { verifyFileHash, storeFileHashWithPrice, getFilePrice, purchaseFile } from "../utils/blockchainHelper";
-import { Card, CardContent } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Skeleton } from "../components/ui/skeleton";
-import styles from "./FileManager.module.css";
-import { ensureContainerExists } from "../utils/solidHelper";
+import {
+    computeSHA256,
+    uploadFileToPod,
+    listFilesInPod,
+    ensureContainerExists
+} from "../utils/solidHelper";
+
+import {
+    storeListing,
+    loadAllListings,
+    getFilePrice,
+    purchaseFile,
+    verifyFileHash
+} from "../utils/blockchainHelper";
 
 const FileManager: React.FC = () => {
     const { session } = useAuth();
-    const [files, setFiles] = useState<{ url: string; price: string; access: boolean }[]>([]);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [filePrice, setFilePrice] = useState<string>("");
 
-    const [verificationResult, setVerificationResult] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    // FILE STATE
+    const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+    const [listings, setListings] = useState<any[]>([]);
+    const [notListed, setNotListed] = useState<string[]>([]);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [listingPrice, setListingPrice] = useState("");
+
     const podUrl = session.info.webId?.replace("/profile/card#me", "/");
 
     useEffect(() => {
-        if (podUrl) fetchFiles();
+        if (!podUrl) return;
+        loadUploads();
+        loadBlockchainListings();
     }, [podUrl]);
 
-    const fetchFiles = async () => {
+    const loadBlockchainListings = async () => {
+        const chainListings = await loadAllListings();
+        setListings(chainListings);
+    };
+
+    const loadUploads = async () => {
         if (!podUrl) return;
-        setIsLoading(true);
-        const containerUrl = `${podUrl}resources/`; // <-- your desired folder
-        await ensureContainerExists(session, containerUrl);
 
-        const fileList = await listFilesInPod(session, podUrl);
-        const filesWithPrices = await Promise.all(
-            fileList.map(async (fileUrl) => ({
-                url: fileUrl,
-                price: await getFilePrice(fileUrl),
-                access: await hasFileAccess(fileUrl)
-            }))
-        );
+        await ensureContainerExists(session, `${podUrl}resources/`);
+        const files = await listFilesInPod(session, podUrl);
 
-        setFiles(filesWithPrices);
-        for (const fileUrl of fileList) {
-            await logFileAcl(session, fileUrl);
-        }
-        setIsLoading(false);
+        setUploadedFiles(files);
+
+        const chainListings = await loadAllListings();
+        const listedUrls = chainListings.map((l) => l.fileUrl);
+
+        setNotListed(files.filter((f) => !listedUrls.includes(f)));
     };
-
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files.length > 0) {
-            setSelectedFile(event.target.files[0]);
-        }
-    };
-
-    const handlePurchase = async (fileUrl: string) => {
-        setIsLoading(true);
-        try {
-            await purchaseFile(fileUrl); // Blockchain transaction
-            await setFilePermissions(session, fileUrl, "shared", session.info.webId!); // Set permissions after purchase
-            fetchFiles();
-        } catch (error) {
-            console.error("Error during purchase:", error);
-        }
-        setIsLoading(false);
-    };
-
-    const hasFileAccess = async (fileUrl: string): Promise<boolean> => {
-        try {
-            const response = await session.fetch(fileUrl);
-            return response.ok;
-        } catch (error) {
-            console.error("Error checking access:", error);
-            return false;
-        }
-    };
-    const handleDownload = async (fileUrl: string) => {
-        try {
-            const response = await session.fetch(fileUrl);
-            if (!response.ok) throw new Error("Access denied or file not found.");
-            const blob = await response.blob();
-            const downloadUrl = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = downloadUrl;
-            a.download = fileUrl.split("/").pop() || "file";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(downloadUrl);
-        } catch (error) {
-            console.error("Download failed:", error);
-        }
-    };
-    const handleViewFile = async (fileUrl: string) => {
-    try {
-        const response = await session.fetch(fileUrl, { method: "GET", headers: {} });
-        if (!response.ok) {
-            throw new Error("Access denied or file not found.");
-        }
-        const blob = await response.blob();
-        const fileType = blob.type;
-
-        const blobUrl = URL.createObjectURL(new Blob([blob], { type: fileType }));
-        window.open(blobUrl, "_blank");
-    } catch (error) {
-        console.error("View failed:", error);
-        alert("❌ Could not open file. You may not have access.");
-    }
-};
-
-
 
     const handleUpload = async () => {
         if (!selectedFile || !podUrl) return;
-        setIsLoading(true);
-        const hash = await computeSHA256(selectedFile);
+
         const fileUrl = await uploadFileToPod(session, selectedFile, podUrl);
-        if (fileUrl) {
-            await storeFileHashWithPrice(fileUrl, hash, filePrice,session.info.webId!);
-            await setFilePermissionsACP(session, fileUrl);
-            await setAppFullAccess(session, fileUrl);       // ← gives app full control
-
-        }
-        fetchFiles();
+        await loadUploads();
         setSelectedFile(null);
-        setFilePrice("");
-        setIsLoading(false);
-    }; 
-
-    const handleVerify = async (fileUrl: string) => {
-        setIsLoading(true);
-        try {
-            const response = await session.fetch(fileUrl);
-            if (response.status === 401) {
-                setVerificationResult("❌ Access denied. Purchase required.");
-            } else {
-                const fileBlob = await response.blob();
-                const newHash = await computeSHA256(new File([fileBlob], "file"));
-                const isValid = await verifyFileHash(fileUrl, newHash);
-                setVerificationResult(isValid ? "✅ Authentic File" : "❌ File Tampered");
-            }
-        } catch (error) {
-            console.error("Error verifying file:", error);
-            setVerificationResult("❌ Error verifying file");
-        }
-        setIsLoading(false);
     };
 
+    const createListing = async (fileUrl: string) => {
+        const response = await session.fetch(fileUrl);
+        const blob = await response.blob();
+        const hash = await computeSHA256(new File([blob], "file"));
+
+        await storeListing(fileUrl, hash, listingPrice, session.info.webId!);
+
+        await loadBlockchainListings();
+        await loadUploads();
+        setListingPrice("");
+        alert("Listing created!");
+    };
 
     return (
-        <div className="file-manager-container">
-            <h2 className="title">🛒 Marketplace File Manager</h2>
+        <div style={{ padding: 20 }}>
+            <h2>📁 My Uploaded Files (Not Listed Yet)</h2>
 
-            <div className="upload-section">
-                <input type="file" onChange={handleFileChange} />
-                <input
-                    type="text"
-                    placeholder="Set price in ETH"
-                    value={filePrice}
-                    onChange={(e) => setFilePrice(e.target.value)}
-                    className="price-input"
-                />
-                <button
-                    onClick={handleUpload}
-                    disabled={!selectedFile || !filePrice || isLoading}
-                    className="upload-button"
-                >
-                    {isLoading ? "Uploading..." : "Upload with Price"}
-                </button>
-            </div>
+            {notListed.length === 0 && <p>No unlisted uploads.</p>}
 
-            <h3 className="subtitle">🗃️ Available Files</h3>
-            <div className="file-list">
-                {files.map(({ url, price, access }) => (
-                    <div key={url} className="file-card">
-                        <span>{url.split("/").pop()}</span>
-                        <span>💰 {price} ETH</span>
-                        <div className="button-group">
-                            {access ? (
-                                <>
-                                    <button onClick={() => handleDownload(url)}>⬇️ Download</button>
-                                    <button onClick={() => handleVerify(url)}>Check Integrity</button>
-                                    <button onClick={() => handleViewFile(url)}>👁️ View File</button>
+            {notListed.map((url) => (
+                <div key={url} style={{ borderBottom: "1px solid #ccc", padding: 10 }}>
+                    <span>{url.split("/").pop()}</span>
 
-                                </>
-                            ) : (
-                                <button onClick={() => handlePurchase(url)}>Buy Access</button>
-                            )}
-                        </div>
-                    </div>
-                ))}
-            </div>
+                    <input
+                        type="text"
+                        placeholder="Set price in ETH"
+                        value={listingPrice}
+                        onChange={(e) => setListingPrice(e.target.value)}
+                        style={{ marginLeft: 10 }}
+                    />
 
-            {verificationResult && (
-                <div className="verification-result">
-                    <p>{verificationResult}</p>
+                    <button
+                        style={{ marginLeft: 10 }}
+                        onClick={() => createListing(url)}
+                    >
+                        Create Listing
+                    </button>
                 </div>
-            )}
+            ))}
+
+            <h2 style={{ marginTop: 40 }}>🛒 Active Listings (Blockchain)</h2>
+
+            {listings.length === 0 && <p>No items listed.</p>}
+
+            {listings.map((l, index) => (
+                <div key={index} style={{ borderBottom: "1px solid #ccc", padding: 10 }}>
+                    <p><strong>File:</strong> {l.fileUrl.split("/").pop()}</p>
+                    <p><strong>Price:</strong> {l.price} ETH</p>
+                    <p><strong>Lister WebID:</strong> {l.webId}</p>
+
+                    <button onClick={() => purchaseFile(l.fileUrl)}>
+                        Buy Access
+                    </button>
+                </div>
+            ))}
+
+            <h2 style={{ marginTop: 40 }}>⬆️ Upload New File</h2>
+
+            <input
+                type="file"
+                onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+            />
+
+            <button
+                onClick={handleUpload}
+                style={{ marginLeft: 10 }}
+                disabled={!selectedFile}
+            >
+                Upload
+            </button>
         </div>
     );
 };
