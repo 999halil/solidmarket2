@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 
 async function main() {
-    const Marketplace = await hre.ethers.getContractFactory("Marketplace");
+    const Marketplace = await hre.ethers.getContractFactory("MarketplaceTwo");
     const marketplace = await Marketplace.deploy();
 
     await marketplace.waitForDeployment();

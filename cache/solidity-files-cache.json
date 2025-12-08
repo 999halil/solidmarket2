@@ -216,6 +216,42 @@
       "artifacts": [
         "Marketplace"
       ]
+    },
+    "C:\\Users\\halil\\OneDrive\\Desktop\\solidmarket2\\contracts\\MatketplaceTwo.sol": {
+      "lastModificationDate": 1765194187975,
+      "contentHash": "444c0d657344e6aa10ceca2ffb88de00",
+      "sourceName": "contracts/MatketplaceTwo.sol",
+      "solcConfig": {
+        "version": "0.8.28",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "MarketplaceTwo"
+      ]
     }
   }
 }

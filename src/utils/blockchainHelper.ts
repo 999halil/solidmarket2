@@ -9,15 +9,15 @@ declare global {
 }
 
 //const CONTRACT_ADDRESS = "YOUR_DEPLOYED_CONTRACT_ADDRESS";
-const CONTRACT_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
-
+const CONTRACT_ADDRESS = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
 
 
 const ABI = [
-    "function storeFileHashWithPrice(string memory fileUrl, string memory fileHash, uint256 price) public payable",
-    "function getFilePrice(string fileUrl) public view returns (uint256)",
-    "function purchaseFile(string fileUrl) public payable",
-    "function verifyFileHash(string fileUrl, string fileHash) public view returns (bool)"
+  "event FileStored(address indexed listerWallet, string webId, string fileUrl, string fileHash, uint256 price)",
+  "function storeFileHashWithPrice(string fileUrl, string fileHash, uint256 price, string webId) public payable",
+  "function getFilePrice(string fileUrl) public view returns (uint256)",
+  "function purchaseFile(string fileUrl) public payable",
+  "function verifyFileHash(string fileUrl, string fileHash) public view returns (bool)"
 ];
 
 /**
@@ -47,15 +47,35 @@ export const storeFileHash = async (fileUrl: string, fileHash: string) => {
     console.log(`Stored hash successfully for ${fileUrl}`);
 };
 
-export const storeFileHashWithPrice = async (fileUrl: string, fileHash: string, price: string) => {
-    console.log(`Storing hash for ${fileUrl} price= ${price}: ${fileHash} `); // Debug log
-
-    const contract = await getContract();
-    const tx = await contract.storeFileHashWithPrice(fileUrl, fileHash, ethers.parseEther(price));
-    await tx.wait();
-    console.log(`Stored hash successfully for ${fileUrl}`);
-
+export const storeFileHashWithPrice = async (
+  fileUrl: string,
+  fileHash: string,
+  price: string,
+  webId: string
+) => {
+  const contract = await getContract();
+  const tx = await contract.storeFileHashWithPrice(
+    fileUrl,
+    fileHash,
+    ethers.parseEther(price),
+    webId
+  );
+  await tx.wait();
 };
+export const loadAllBlockchainFiles = async () => {
+  const provider = new BrowserProvider(window.ethereum);
+  const contract = new Contract(CONTRACT_ADDRESS, ABI, provider);
+
+  const logs = await contract.queryFilter("FileStored");
+  return logs.map((log: any) => ({
+    wallet: log.args.listerWallet,
+    webId: log.args.webId,
+    fileUrl: log.args.fileUrl,
+    fileHash: log.args.fileHash,
+    price: ethers.formatEther(log.args.price)
+  }));
+};
+
 
 
 export const getFilePrice = async (fileUrl: string): Promise<string> => {

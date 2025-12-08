@@ -114,7 +114,7 @@ const FileManager: React.FC = () => {
         const hash = await computeSHA256(selectedFile);
         const fileUrl = await uploadFileToPod(session, selectedFile, podUrl);
         if (fileUrl) {
-            await storeFileHashWithPrice(fileUrl, hash, filePrice);
+            await storeFileHashWithPrice(fileUrl, hash, filePrice,session.info.webId!);
             await setFilePermissionsACP(session, fileUrl);
             await setAppFullAccess(session, fileUrl);       // ← gives app full control
 
@@ -123,7 +123,7 @@ const FileManager: React.FC = () => {
         setSelectedFile(null);
         setFilePrice("");
         setIsLoading(false);
-    };
+    }; 
 
     const handleVerify = async (fileUrl: string) => {
         setIsLoading(true);
