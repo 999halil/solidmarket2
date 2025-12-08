@@ -5,7 +5,7 @@ import Profile from "../components/Profile";
 import FileManager from "../components/FileManager";
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
-
+import ACPTestBasic from "../components/ACPTestBasic"
 const Home: React.FC = () => {
     const { isAuthenticated } = useAuth();
 
@@ -22,6 +22,7 @@ const Home: React.FC = () => {
                 <>
                     <LogoutButton />
                     <Profile />
+                    <ACPTestBasic/>
                     <FileManager />
                 </>
             ) : (
