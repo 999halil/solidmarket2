@@ -6,7 +6,9 @@ import {
     uploadFileToPod,
     listFilesInPod,
     ensureContainerExists, setFilePermissionsACP,
-    grantBuyerReadAccess
+    grantBuyerReadAccess,
+    sendPurchaseRequest,
+    setFilePermissionsACL
 } from "../utils/solidHelper";
 
 import {
@@ -59,7 +61,7 @@ const FileManager: React.FC = () => {
 
         const fileUrl = await uploadFileToPod(session, selectedFile, podUrl);
         if (fileUrl) {
-            await setFilePermissionsACP(session, fileUrl);
+            //await setFilePermissionsACP(session, fileUrl);
         }
         await loadUploads();
         setSelectedFile(null);
@@ -127,14 +129,19 @@ const FileManager: React.FC = () => {
                                 console.log("🛒 Purchasing on blockchain...");
                                 await purchaseFile(l.fileUrl);
 
-                                console.log("🔐 Granting buyer read access on Solid Pod...");
-                                await grantBuyerReadAccess(session, l.fileUrl, session.info.webId!);
+                                await sendPurchaseRequest(
+                                    session,
+                                    l.webId,                 // seller webId
+                                    l.fileUrl,
+                                    session.info.webId!      // buyer webId
+                                );
 
-                                alert("Purchase successful! You now have access to this file.");
+                                alert("Purchase request sent! Seller must approve.");
+
                             } catch (err) {
                                 console.error(err);
                                 alert("Purchase failed.");
-                            } 
+                            }
                         }}
                     >
                         Buy Access

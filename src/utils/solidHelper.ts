@@ -1,4 +1,4 @@
-import { getSolidDataset, getPublicAccess, getAgentAccess, hasAccessibleAcl, setPublicResourceAccess, getContainedResourceUrlAll, getFileWithAcl, hasResourceAcl, createAcl, getFile, getResourceAcl, saveAclFor, setAgentResourceAccess, overwriteFile, AclDataset, createAclFromFallbackAcl, getFallbackAcl } from "@inrupt/solid-client";
+import { getSolidDataset, getPublicAccess, getAgentAccess, hasAccessibleAcl, setPublicResourceAccess, getContainedResourceUrlAll, getFileWithAcl, hasResourceAcl, createAcl, getFile, getResourceAcl, saveAclFor, setAgentResourceAccess, overwriteFile, AclDataset, createAclFromFallbackAcl, getFallbackAcl, getUrl, getSolidDatasetWithAcl, getResourceInfo } from "@inrupt/solid-client";
 import { Session } from "@inrupt/solid-client-authn-browser";
 import {
   createContainerAt,
@@ -11,6 +11,7 @@ import {
    
   universalAccess as access,
 } from "@inrupt/solid-client";
+import { RDF } from "@inrupt/vocab-common-rdf";
 
 
 /**
@@ -70,6 +71,34 @@ export const setFilePermissions = async (
         console.error("❌ Error setting file permissions:", error);
     }
 };
+
+export async function sendPurchaseRequest(session: Session, sellerWebId: String, fileUrl: String, buyerWebId: String) {
+    const sellerPod = sellerWebId.replace("/profile/card#me", "/");
+    const inboxUrl = `${sellerPod}inbox/marketplace/`;
+
+    // Ensure inbox exists
+    await ensureContainerExists(session, inboxUrl);
+
+    // Create a unique notification file
+    const timestamp = Date.now();
+    const noteUrl = `${inboxUrl}purchase-${timestamp}.json`;
+
+    const notification = {
+        type: "PurchaseRequest",
+        fileUrl,
+        buyerWebId,
+        timestamp
+    };
+
+    await session.fetch(noteUrl, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(notification)
+    });
+
+    return noteUrl;
+}
+
 
 export async function setAppFullAccess(session: Session, fileUrl: string) {
   const appOrigin = "http://localhost:3000"; // or your deployed domain
@@ -152,14 +181,114 @@ export async function grantBuyerReadAccess(
       { read: true }, // buyer gets read-only
       { fetch: session.fetch }
     );
+    console.log("buyer webid is =", buyerWebId);    
+    console.log("seller webid is =", session.info.webId);
+
 
     console.log(`🔐 Buyer read access granted for: ${fileUrl}`, result);
     return result;
   } catch (err) {
     console.error("❌ Failed to grant buyer read access:", err);
-    throw err;
+    throw err; 
   }
 }
+
+/*
+
+export async function grantBuyerReadAccess(session:Session, fileUrl:string, buyerWebId:string) {
+  try {
+    console.log("Granting access for:", fileUrl);
+
+    // 1) Fetch file metadata (NOT the file itself)
+    const fileInfo = await getResourceInfo(fileUrl, { fetch: session.fetch });
+
+    if (!fileInfo.internal_resourceInfo.aclUrl) {
+      throw new Error("❌ This server does not expose ACL URL for the resource.");
+    }
+
+    const aclUrl = fileInfo.internal_resourceInfo.aclUrl;
+    console.log("Found ACL URL:", aclUrl);
+
+    // 2) Load the ACL document directly
+    const datasetWithAcl = await getSolidDatasetWithAcl(fileUrl, {
+      fetch: session.fetch,
+    });
+
+    let resourceAcl;
+
+    if (hasResourceAcl(datasetWithAcl)) {
+      resourceAcl = getResourceAcl(datasetWithAcl);
+
+    } else if (hasAccessibleAcl(datasetWithAcl)) {
+      const fallback = getFallbackAcl(datasetWithAcl);
+      resourceAcl = fallback
+        ? createAclFromFallbackAcl(datasetWithAcl as any)
+        : createAcl(datasetWithAcl);
+
+    } else {
+      throw new Error("❌ Cannot access ACL for resource.");
+    }
+
+    // 3) Modify ACL
+    resourceAcl = setAgentResourceAccess(
+      resourceAcl,
+      buyerWebId,
+      { read: true, append: false, write: false, control: false }
+    );
+
+    // 4) Save ACL back
+    await saveAclFor(datasetWithAcl, resourceAcl, { fetch: session.fetch });
+
+    console.log(`✔ Successfully granted read access to ${buyerWebId}`);
+
+  } catch (err) {
+    console.error("❌ Error granting access:", err);
+  }  try {
+    const datasetWithAcl = await getSolidDatasetWithAcl(fileUrl, {
+      fetch: session.fetch
+    });
+
+    let resourceAcl: AclDataset;
+
+    if (hasResourceAcl(datasetWithAcl)) {
+      // Has its own ACL
+      resourceAcl = getResourceAcl(datasetWithAcl);
+
+    } else if (hasAccessibleAcl(datasetWithAcl)) {
+      const fallback = getFallbackAcl(datasetWithAcl);
+
+      if (fallback) {
+        // 🔥 Cast is required — typings are broken otherwise
+        resourceAcl = createAclFromFallbackAcl(
+          datasetWithAcl as any        );
+      } else {
+        // No fallback at all → create empty ACL
+        resourceAcl = createAcl(datasetWithAcl as any);
+      }
+
+    } else {
+      throw new Error("❌ Cannot read or create ACL for resource.");
+    }
+
+    // Add buyer permissions
+    resourceAcl = setAgentResourceAccess(
+      resourceAcl as any,
+      buyerWebId,
+      { read: true, append: false, write: false, control: false }
+    );
+
+    // Save back
+    await saveAclFor(datasetWithAcl as any, resourceAcl as any, {
+      fetch: session.fetch
+    });
+
+    console.log(`✔ Successfully granted read access to ${buyerWebId}`);
+
+  } catch (err) {
+    console.error("❌ Error granting access:", err);
+  }
+}
+  */
 export async function setFilePermissionsACP(session: Session, fileUrl: string) {
   try {
     const result = await access.setAgentAccess(fileUrl, session.info.webId!, {
@@ -199,7 +328,28 @@ export async function setFilePermissionsACP(session: Session, fileUrl: string) {
 
   } catch (err) {
     console.error(`❌ Failed to set ACP permissions on ${fileUrl}`, err);
-  }
+  }/*
+    try {
+    const result = await access.setAgentAccess(fileUrl, "https://azer.solidcommunity.net/profile/card#me", {
+      read: true,
+      append: true,
+      write: true,
+      controlRead: true,
+      controlWrite: true
+    }, {
+      fetch: session.fetch,
+    });
+
+    if (!result) {
+      console.warn(`⚠️ No access info returned from setAgentAccess for ${fileUrl}`);
+    } else {
+      console.log(`✅ ACP permissions set for ${fileUrl}`, result);
+    }
+
+  } catch (err) {
+    console.error(`❌ Failed to set ACP permissions on ${fileUrl}`, err);
+  }*/
+
 }
 
 
@@ -296,3 +446,81 @@ export const computeSHA256 = async (file: File): Promise<string> => {
         .map((byte) => byte.toString(16).padStart(2, "0"))
         .join("");
 };
+
+
+export async function listInboxMessages(session: Session, inboxUrl: string) {
+  try {
+    if (!inboxUrl.endsWith("/")) inboxUrl += "/";
+
+    console.log("📨 Listing inbox:", inboxUrl);
+
+    // Load the container dataset
+    const dataset = await getSolidDataset(inboxUrl, { fetch: session.fetch });
+
+    // Get *all* contained resources (files + subfolders)
+    const files = getContainedResourceUrlAll(dataset);
+
+    return files;
+  } catch (err) {
+    console.error("❌ Failed to list inbox messages:", err);
+    return [];
+  }
+}
+export async function debugAccess(session: Session, fileUrl: string) {
+  const acp = await access.getAgentAccess(fileUrl, session.info.webId!, { fetch: session.fetch });
+  console.log("DEBUG: Seller's current ACP rights:", acp);
+}
+
+
+// Give full control to the file's owner (uploader)
+export async function setFilePermissionsACL(session: Session, fileUrl: string) {
+  try {
+    console.log("🔧 Setting ACL permissions for:", fileUrl);
+
+    // Fetch metadata + ACL pointers (not the PDF itself!)
+    const datasetWithAcl = await getSolidDatasetWithAcl(fileUrl, {
+      fetch: session.fetch
+    });
+
+    let resourceAcl: AclDataset;
+
+    if (hasResourceAcl(datasetWithAcl)) {
+      // File already has ACL
+      resourceAcl = getResourceAcl(datasetWithAcl);
+
+    } else if (hasAccessibleAcl(datasetWithAcl)) {
+      // Inherit container ACL (if any)
+      const fallback = getFallbackAcl(datasetWithAcl);
+
+      // IMPORTANT: must pass fallback manually or TS breaks
+      resourceAcl = fallback
+        ? createAclFromFallbackAcl(datasetWithAcl as any)
+        : createAcl(datasetWithAcl as any);
+
+    } else {
+      // No ACL anywhere → create a fresh ACL
+      resourceAcl = createAcl(datasetWithAcl as any);
+    }
+
+    // Give full control to the uploader (seller)
+    resourceAcl = setAgentResourceAccess(
+      resourceAcl as any,
+      session.info.webId!,
+      {
+        read: true,
+        append: true,
+        write: true,
+        control: true
+      }
+    );
+
+    // Save ACL back to POD
+    await saveAclFor(datasetWithAcl as any, resourceAcl as any, {
+      fetch: session.fetch
+    });
+
+    console.log("✅ ACL permissions applied successfully for:", fileUrl);
+  } catch (err) {
+    console.error("❌ Failed to apply ACL permissions:", err);
+  }
+}

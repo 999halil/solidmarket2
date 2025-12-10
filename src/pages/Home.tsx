@@ -18,6 +18,12 @@ const Home: React.FC = () => {
                     🔍 View Blockchain Data
                 </button>
             </Link>
+
+            <Link to="/inbox">
+                <button style={{ marginBottom: "20px" }}>
+                    Inbox
+                </button>
+            </Link>
             {isAuthenticated ? (
                 <>
                     <LogoutButton />
