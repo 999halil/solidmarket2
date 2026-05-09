@@ -71,7 +71,30 @@ export const setFilePermissions = async (
         console.error("❌ Error setting file permissions:", error);
     }
 };
+export async function prepareMarketplaceInbox(session: Session) {
+    if (!session.info.webId) {
+        throw new Error("User is not logged in.");
+    }
 
+    const podBase = session.info.webId.replace("/profile/card#me", "/");
+    const inboxUrl = `${podBase}inbox/marketplace/`;
+
+    await ensureContainerExists(session, inboxUrl);
+
+    await access.setPublicAccess(
+        inboxUrl,
+        {
+            read: false,
+            append: true,
+            write: false,
+            controlRead: false,
+            controlWrite: false,
+        },
+        { fetch: session.fetch }
+    );
+
+    return inboxUrl;
+}
 export async function sendPurchaseRequest(
     session: Session,
     sellerWebId: string,
@@ -82,10 +105,7 @@ export async function sendPurchaseRequest(
     const sellerPod = sellerWebId.replace("/profile/card#me", "/");
     const inboxUrl = `${sellerPod}inbox/marketplace/`;
 
-    await ensureContainerExists(session, inboxUrl);
-
     const timestamp = Date.now();
-    const noteUrl = `${inboxUrl}purchase-${timestamp}.json`;
 
     const notification = {
         type: "PurchaseRequest",
@@ -95,13 +115,20 @@ export async function sendPurchaseRequest(
         timestamp
     };
 
-    await session.fetch(noteUrl, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+    const response = await session.fetch(inboxUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Slug": `purchase-${timestamp}.json`
+        },
         body: JSON.stringify(notification)
     });
 
-    return noteUrl;
+    if (!response.ok) {
+        throw new Error(`Failed to send purchase request: ${response.status}`);
+    }
+
+    return response.headers.get("Location");
 }
 
 

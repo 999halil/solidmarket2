@@ -16,6 +16,8 @@ contract MarketplaceTwo {
         string fileHash;
         uint256 price;
         bool exists;
+        bool active;
+        uint256 listedAt;
     }
 
     struct Sale {
@@ -40,8 +42,13 @@ contract MarketplaceTwo {
         string webId,
         string fileUrl,
         string fileHash,
-        uint256 price
-    );
+        uint256 price,
+        uint256 listedAt
+);
+event ListingDeleted(
+    string fileUrl,
+    address indexed listerWallet
+);
 
     event SaleRequested(
         uint256 indexed saleId,
@@ -65,16 +72,36 @@ contract MarketplaceTwo {
         require(price > 0, "Price must be greater than zero");
 
         files[fileUrl] = FileData({
-            listerWallet: payable(msg.sender),
-            webId: webId,
-            fileUrl: fileUrl,
-            fileHash: fileHash,
-            price: price,
-            exists: true
-        });
+    listerWallet: payable(msg.sender),
+    webId: webId,
+    fileUrl: fileUrl,
+    fileHash: fileHash,
+    price: price,
+    exists: true,
+    active: true,
+    listedAt: block.timestamp
+});
 
-        emit FileStored(msg.sender, webId, fileUrl, fileHash, price);
+emit FileStored(
+    msg.sender,
+    webId,
+    fileUrl,
+    fileHash,
+    price,
+    block.timestamp
+);
     }
+    function deleteListing(string memory fileUrl) public {
+    FileData storage file = files[fileUrl];
+
+    require(file.exists, "Listing does not exist");
+    require(file.active, "Listing already deleted");
+    require(msg.sender == file.listerWallet, "Only lister can delete listing");
+
+    file.active = false;
+
+    emit ListingDeleted(fileUrl, msg.sender);
+}
 
     function getFilePrice(string memory fileUrl) public view returns (uint256) {
         require(files[fileUrl].exists, "File not found");
@@ -89,6 +116,7 @@ contract MarketplaceTwo {
 
         require(file.exists, "File not found");
         require(msg.value == file.price, "Incorrect price");
+        require(file.active, "Listing is no longer active");
         require(msg.sender != file.listerWallet, "Seller cannot buy own listing");
 
         saleCounter++;

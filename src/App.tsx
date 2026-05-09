@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import { AuthProvider } from "./context/AuthContext";
 import BlockchainView from "./context/BlockchainView"
 import Inbox from "./components/Inbox";
+import Listings from "./pages/Listings";
 const App: React.FC = () => {
   return (
     <AuthProvider>
@@ -11,7 +12,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/blockchain" element={<BlockchainView />} />
           <Route path="/inbox" element={<Inbox/>}/>
-
+          <Route path="/listings" element={<Listings />} />
           <Route path="/" element={<Home />} />
         </Routes>
       </Router>

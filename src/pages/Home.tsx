@@ -12,20 +12,27 @@ const Home: React.FC = () => {
     return (
         <div>
             <h1>Welcome to the SoLiD Marketplace</h1>
+             {isAuthenticated ? (
+                <>
+            
              {/* 🔗 Blockchain Explorer Button */}
             <Link to="/blockchain">
                 <button style={{ marginBottom: "20px" }}>
                     🔍 View Blockchain Data
                 </button>
             </Link>
+            <Link to="/listings">
+    <button style={{ marginBottom: "20px" }}>
+        🛒 View Marketplace Listings
+    </button>
+</Link>
 
             <Link to="/inbox">
                 <button style={{ marginBottom: "20px" }}>
                     Inbox
                 </button>
             </Link>
-            {isAuthenticated ? (
-                <>
+           
                     <LogoutButton />
                     <Profile />
                     <ACPTestBasic/>

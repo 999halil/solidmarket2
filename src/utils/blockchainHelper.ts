@@ -9,11 +9,12 @@ declare global {
     }
 }
 
-const CONTRACT_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+const CONTRACT_ADDRESS = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
 
 const ABI = [
-    "event FileStored(address indexed listerWallet, string webId, string fileUrl, string fileHash, uint256 price)",
-    "event SaleRequested(uint256 indexed saleId, string fileUrl, address indexed buyerWallet, address indexed sellerWallet, string buyerWebId, uint256 amount)",
+"event FileStored(address indexed listerWallet, string webId, string fileUrl, string fileHash, uint256 price, uint256 listedAt)",
+"event ListingDeleted(string fileUrl, address indexed listerWallet)",
+"function deleteListing(string fileUrl) public",    "event SaleRequested(uint256 indexed saleId, string fileUrl, address indexed buyerWallet, address indexed sellerWallet, string buyerWebId, uint256 amount)",
     "event SaleApproved(uint256 indexed saleId)",
     "event SaleRejected(uint256 indexed saleId)",
     "event SaleRefunded(uint256 indexed saleId)",
@@ -45,6 +46,11 @@ export const storeListing = async (fileUrl: string, fileHash: string, price: str
         ethers.parseEther(price),
         webId
     );
+    await tx.wait();
+};
+export const deleteListing = async (fileUrl: string) => {
+    const contract = await getContract();
+    const tx = await contract.deleteListing(fileUrl);
     await tx.wait();
 };
 
@@ -98,18 +104,36 @@ export const verifyFileHash = async (fileUrl: string, fileHash: string) => {
 
 // LOAD ALL LISTINGS (from events)
 export const loadAllListings = async () => {
+    if (!window.ethereum) throw new Error("Ethereum wallet required");
+
     const provider = new BrowserProvider(window.ethereum);
     const contract = new Contract(CONTRACT_ADDRESS, ABI, provider);
 
-    const events = await contract.queryFilter("FileStored");
+    const storedEvents = await contract.queryFilter("FileStored");
+    const deletedEvents = await contract.queryFilter("ListingDeleted");
 
-    return events.map((ev: any) => ({
-        wallet: ev.args.listerWallet,
-        webId: ev.args.webId,
-        fileUrl: ev.args.fileUrl,
-        fileHash: ev.args.fileHash,
-        price: ethers.formatEther(ev.args.price)
-    }));
+    const deletedUrls = new Set(
+        deletedEvents.map((ev: any) => ev.args.fileUrl)
+    );
+
+    const listings = await Promise.all(
+        storedEvents.map(async (ev: any) => {
+            const block = await provider.getBlock(ev.blockNumber);
+
+            return {
+                wallet: ev.args.listerWallet,
+                webId: ev.args.webId,
+                fileUrl: ev.args.fileUrl,
+                fileHash: ev.args.fileHash,
+                price: ethers.formatEther(ev.args.price),
+                listedAt: ev.args.listedAt
+                    ? Number(ev.args.listedAt)
+                    : block?.timestamp,
+            };
+        })
+    );
+
+    return listings.filter((listing) => !deletedUrls.has(listing.fileUrl));
 };
 export const approveSale = async (saleId: string | number) => {
     const contract = await getContract();

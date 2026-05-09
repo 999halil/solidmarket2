@@ -8,7 +8,8 @@ import {
     ensureContainerExists, setFilePermissionsACP,
     grantBuyerReadAccess,
     sendPurchaseRequest,
-    setFilePermissionsACL
+    setFilePermissionsACL,
+    prepareMarketplaceInbox
 } from "../utils/solidHelper";
 
 import {
@@ -16,7 +17,8 @@ import {
     loadAllListings,
     getFilePrice,
     purchaseFile,
-    verifyFileHash
+    verifyFileHash,
+    deleteListing
 } from "../utils/blockchainHelper";
 
 const FileManager: React.FC = () => {
@@ -38,9 +40,33 @@ const FileManager: React.FC = () => {
     }, [podUrl]);
 
     const loadBlockchainListings = async () => {
-        const chainListings = await loadAllListings();
-        setListings(chainListings);
-    };
+    const chainListings = await loadAllListings();
+
+    const myListings = chainListings.filter(
+        (listing: any) => listing.webId === session.info.webId
+    );
+
+    setListings(myListings);
+};
+const handleDeleteListing = async (fileUrl: string) => {
+    const confirmed = window.confirm(
+        "Are you sure you want to delete this listing? The file will remain in your Solid Pod."
+    );
+
+    if (!confirmed) return;
+
+    try {
+        await deleteListing(fileUrl);
+
+        await loadBlockchainListings();
+        await loadUploads();
+
+        alert("Listing deleted.");
+    } catch (err) {
+        console.error("Failed to delete listing:", err);
+        alert("Failed to delete listing.");
+    }
+};
 
     const loadUploads = async () => {
         if (!podUrl) return;
@@ -94,6 +120,7 @@ const FileManager: React.FC = () => {
         const response = await session.fetch(fileUrl);
         const blob = await response.blob();
         const hash = await computeSHA256(new File([blob], "file"));
+        await prepareMarketplaceInbox(session);
 
         await storeListing(fileUrl, hash, price, session.info.webId!);
 
@@ -146,7 +173,7 @@ const FileManager: React.FC = () => {
                     </button>
                 </div>
             ))}
-            <h2 style={{ marginTop: 40 }}>🛒 Active Listings (Blockchain)</h2>
+            <h2 style={{ marginTop: 40 }}>🛒My Active Listings (Blockchain)</h2>
 
             <button
                 style={{ marginBottom: 10 }}
@@ -155,46 +182,28 @@ const FileManager: React.FC = () => {
                 🔄 Refresh Listings
             </button>
 
-            {listings.length === 0 && <p>No items listed.</p>}
+            {listings.length === 0 && <p>You have no active listings.</p>}
 
-            {listings.map((l, index) => (
-                <div key={index} style={{ borderBottom: "1px solid #ccc", padding: 10 }}>
-                    <p><strong>File:</strong> {l.fileUrl.split("/").pop()}</p>
-                    <p><strong>Price:</strong> {l.price} ETH</p>
-                    <p><strong>Lister WebID:</strong> {l.webId}</p>
+{listings.map((l, index) => (
+    <div key={index} style={{ borderBottom: "1px solid #ccc", padding: 10 }}>
+        <p><strong>File:</strong> {l.fileUrl.split("/").pop()}</p>
+        <p><strong>Price:</strong> {l.price} ETH</p>
+        <p><strong>Listed at:</strong> {
+            l.listedAt
+                ? new Date(l.listedAt * 1000).toLocaleString()
+                : "Unknown"
+        }</p>
+        <p><strong>File URL:</strong> {l.fileUrl}</p>
+        <p><strong>Hash:</strong> {l.fileHash}</p>
 
-                    <button
-                        onClick={async () => {
-                            try {
-                                console.log("🛒 Purchasing on blockchain...");
-                                const saleId = await purchaseFile(
-                                    l.fileUrl,
-                                    session.info.webId!
-                                );
-
-                                await sendPurchaseRequest(
-                                    session,
-                                    l.webId,
-                                    l.fileUrl,
-                                    session.info.webId!,
-                                    saleId
-                                );
-
-                                alert("Purchase request sent! Payment is locked until seller approval.");
-
-                                alert("Purchase request sent! Seller must approve.");
-
-                            } catch (err) {
-                                console.error(err);
-                                alert("Purchase failed.");
-                            }
-                        }}
-                    >
-                        Buy Access
-                    </button>
-
-                </div>
-            ))}
+        <button
+            onClick={() => handleDeleteListing(l.fileUrl)}
+            style={{ marginTop: 10 }}
+        >
+            Delete Listing
+        </button>
+    </div>
+))}
 
 
             <h2 style={{ marginTop: 40 }}>⬆️ Upload New File</h2>
@@ -214,5 +223,6 @@ const FileManager: React.FC = () => {
         </div>
     );
 };
+
 
 export default FileManager;
