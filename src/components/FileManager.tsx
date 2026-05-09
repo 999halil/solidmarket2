@@ -27,7 +27,7 @@ const FileManager: React.FC = () => {
     const [listings, setListings] = useState<any[]>([]);
     const [notListed, setNotListed] = useState<string[]>([]);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-const [listingPrices, setListingPrices] = useState<{ [fileUrl: string]: string }>({});
+    const [listingPrices, setListingPrices] = useState<{ [fileUrl: string]: string }>({});
 
     const podUrl = session.info.webId?.replace("/profile/card#me", "/");
 
@@ -59,43 +59,66 @@ const [listingPrices, setListingPrices] = useState<{ [fileUrl: string]: string }
     const handleUpload = async () => {
         if (!selectedFile || !podUrl) return;
 
-        const fileUrl = await uploadFileToPod(session, selectedFile, podUrl);
-        if (fileUrl) {
-            //await setFilePermissionsACP(session, fileUrl);
+        try {
+            const fileUrl = await uploadFileToPod(session, selectedFile, podUrl);
+
+            if (fileUrl) {
+                // Immediately update UI without waiting for Pod refresh consistency
+                setUploadedFiles((prev) =>
+                    prev.includes(fileUrl) ? prev : [...prev, fileUrl]
+                );
+
+                setNotListed((prev) =>
+                    prev.includes(fileUrl) ? prev : [...prev, fileUrl]
+                );
+
+                // Optional: still reload from the Pod afterwards
+                await loadUploads();
+            }
+
+            setSelectedFile(null);
+        } catch (err) {
+            console.error("Upload failed:", err);
+            alert("Upload failed.");
         }
-        await loadUploads();
-        setSelectedFile(null);
     };
 
     const createListing = async (fileUrl: string) => {
-    const price = listingPrices[fileUrl];
+        const price = listingPrices[fileUrl];
 
-    if (!price) {
-        alert("Please enter a price for this file.");
-        return;
-    }
+        if (!price) {
+            alert("Please enter a price for this file.");
+            return;
+        }
 
-    const response = await session.fetch(fileUrl);
-    const blob = await response.blob();
-    const hash = await computeSHA256(new File([blob], "file"));
+        const response = await session.fetch(fileUrl);
+        const blob = await response.blob();
+        const hash = await computeSHA256(new File([blob], "file"));
 
-    await storeListing(fileUrl, hash, price, session.info.webId!);
+        await storeListing(fileUrl, hash, price, session.info.webId!);
 
-    await loadBlockchainListings();
-    await loadUploads();
+        await loadBlockchainListings();
+        await loadUploads();
 
-    setListingPrices((prev) => {
-        const updated = { ...prev };
-        delete updated[fileUrl];
-        return updated;
-    });
+        setListingPrices((prev) => {
+            const updated = { ...prev };
+            delete updated[fileUrl];
+            return updated;
+        });
 
-    alert("Listing created!");
-};
+        alert("Listing created!");
+    };
 
     return (
         <div style={{ padding: 20 }}>
             <h2>📁 My Uploaded Files (Not Listed Yet)</h2>
+
+            <button
+                onClick={loadUploads}
+                style={{ marginBottom: 10 }}
+            >
+                🔄 Refresh Uploaded Files
+            </button>
 
             {notListed.length === 0 && <p>No unlisted uploads.</p>}
 
@@ -103,18 +126,18 @@ const [listingPrices, setListingPrices] = useState<{ [fileUrl: string]: string }
                 <div key={url} style={{ borderBottom: "1px solid #ccc", padding: 10 }}>
                     <span>{url.split("/").pop()}</span>
 
-                  <input
-    type="text"
-    placeholder="Set price in ETH"
-    value={listingPrices[url] || ""}
-    onChange={(e) =>
-        setListingPrices((prev) => ({
-            ...prev,
-            [url]: e.target.value,
-        }))
-    }
-    style={{ marginLeft: 10 }}
-/>
+                    <input
+                        type="text"
+                        placeholder="Set price in ETH"
+                        value={listingPrices[url] || ""}
+                        onChange={(e) =>
+                            setListingPrices((prev) => ({
+                                ...prev,
+                                [url]: e.target.value,
+                            }))
+                        }
+                        style={{ marginLeft: 10 }}
+                    />
                     <button
                         style={{ marginLeft: 10 }}
                         onClick={() => createListing(url)}
@@ -145,19 +168,19 @@ const [listingPrices, setListingPrices] = useState<{ [fileUrl: string]: string }
                             try {
                                 console.log("🛒 Purchasing on blockchain...");
                                 const saleId = await purchaseFile(
-    l.fileUrl,
-    session.info.webId!
-);
+                                    l.fileUrl,
+                                    session.info.webId!
+                                );
 
-await sendPurchaseRequest(
-    session,
-    l.webId,
-    l.fileUrl,
-    session.info.webId!,
-    saleId
-);
+                                await sendPurchaseRequest(
+                                    session,
+                                    l.webId,
+                                    l.fileUrl,
+                                    session.info.webId!,
+                                    saleId
+                                );
 
-alert("Purchase request sent! Payment is locked until seller approval.");
+                                alert("Purchase request sent! Payment is locked until seller approval.");
 
                                 alert("Purchase request sent! Seller must approve.");
 
