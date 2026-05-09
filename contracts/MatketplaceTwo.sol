@@ -2,24 +2,39 @@
 pragma solidity ^0.8.0;
 
 contract MarketplaceTwo {
-
-    // -----------------------------------
-    // STRUCT THAT STORES ALL FILE DATA
-    // -----------------------------------
-    struct FileData {
-        address listerWallet;   // Ethereum wallet of the uploader
-        string webId;           // Solid WebID of the uploader
-        string fileUrl;         // URL to the file in their Solid Pod
-        string fileHash;        // SHA-256 hash
-        uint256 price;          // Price in ETH
+    enum SaleStatus {
+        Pending,
+        Approved,
+        Rejected,
+        Refunded
     }
 
-    // Mapping: fileUrl → FileData
-    mapping(string => FileData) private files;
+    struct FileData {
+        address payable listerWallet;
+        string webId;
+        string fileUrl;
+        string fileHash;
+        uint256 price;
+        bool exists;
+    }
 
-    // -----------------------------------
-    // EVENT EMITTED ON EACH FILE LISTING
-    // -----------------------------------
+    struct Sale {
+        uint256 saleId;
+        string fileUrl;
+        address payable buyerWallet;
+        address payable sellerWallet;
+        string buyerWebId;
+        uint256 amount;
+        SaleStatus status;
+        uint256 createdAt;
+    }
+
+    mapping(string => FileData) private files;
+    mapping(uint256 => Sale) public sales;
+
+    uint256 public saleCounter;
+    uint256 public constant REFUND_TIMEOUT = 1 days;
+
     event FileStored(
         address indexed listerWallet,
         string webId,
@@ -28,72 +43,136 @@ contract MarketplaceTwo {
         uint256 price
     );
 
-    // -----------------------------------
-    // STORE FILE HASH, PRICE, LISTER DATA
-    // -----------------------------------
+    event SaleRequested(
+        uint256 indexed saleId,
+        string fileUrl,
+        address indexed buyerWallet,
+        address indexed sellerWallet,
+        string buyerWebId,
+        uint256 amount
+    );
+
+    event SaleApproved(uint256 indexed saleId);
+    event SaleRejected(uint256 indexed saleId);
+    event SaleRefunded(uint256 indexed saleId);
+
     function storeFileHashWithPrice(
         string memory fileUrl,
         string memory fileHash,
         uint256 price,
         string memory webId
-    ) public payable {
+    ) public {
+        require(price > 0, "Price must be greater than zero");
 
         files[fileUrl] = FileData({
-            listerWallet: msg.sender,
+            listerWallet: payable(msg.sender),
             webId: webId,
             fileUrl: fileUrl,
             fileHash: fileHash,
-            price: price
+            price: price,
+            exists: true
         });
 
         emit FileStored(msg.sender, webId, fileUrl, fileHash, price);
     }
 
-    // -----------------------------------
-    // READ PRICE
-    // -----------------------------------
-    function getFilePrice(string memory fileUrl)
-        public
-        view
-        returns (uint256)
-    {
+    function getFilePrice(string memory fileUrl) public view returns (uint256) {
+        require(files[fileUrl].exists, "File not found");
         return files[fileUrl].price;
     }
 
-    // -----------------------------------
-    // PURCHASE FILE (REQUIRES EXACT PRICE)
-    // -----------------------------------
-    function purchaseFile(string memory fileUrl) public payable {
+    function purchaseFile(
+        string memory fileUrl,
+        string memory buyerWebId
+    ) public payable returns (uint256) {
+        FileData storage file = files[fileUrl];
 
-        uint256 price = files[fileUrl].price;
+        require(file.exists, "File not found");
+        require(msg.value == file.price, "Incorrect price");
+        require(msg.sender != file.listerWallet, "Seller cannot buy own listing");
 
-        require(price > 0, "File not found.");
-        require(msg.value == price, "Incorrect price.");
+        saleCounter++;
 
-        // (Optional) ETH transfer to seller:
-        // payable(files[fileUrl].listerWallet).transfer(msg.value);
+        sales[saleCounter] = Sale({
+            saleId: saleCounter,
+            fileUrl: fileUrl,
+            buyerWallet: payable(msg.sender),
+            sellerWallet: file.listerWallet,
+            buyerWebId: buyerWebId,
+            amount: msg.value,
+            status: SaleStatus.Pending,
+            createdAt: block.timestamp
+        });
+
+        emit SaleRequested(
+            saleCounter,
+            fileUrl,
+            msg.sender,
+            file.listerWallet,
+            buyerWebId,
+            msg.value
+        );
+
+        return saleCounter;
     }
 
-    // -----------------------------------
-    // VERIFY HASH
-    // -----------------------------------
+    function approveSale(uint256 saleId) public {
+        Sale storage sale = sales[saleId];
+
+        require(sale.status == SaleStatus.Pending, "Sale is not pending");
+        require(msg.sender == sale.sellerWallet, "Only seller can approve");
+
+        sale.status = SaleStatus.Approved;
+
+        (bool sent, ) = sale.sellerWallet.call{value: sale.amount}("");
+        require(sent, "Payment transfer failed");
+
+        emit SaleApproved(saleId);
+    }
+
+    function rejectSale(uint256 saleId) public {
+        Sale storage sale = sales[saleId];
+
+        require(sale.status == SaleStatus.Pending, "Sale is not pending");
+        require(msg.sender == sale.sellerWallet, "Only seller can reject");
+
+        sale.status = SaleStatus.Rejected;
+
+        (bool refunded, ) = sale.buyerWallet.call{value: sale.amount}("");
+        require(refunded, "Refund failed");
+
+        emit SaleRejected(saleId);
+    }
+
+    function refundAfterTimeout(uint256 saleId) public {
+        Sale storage sale = sales[saleId];
+
+        require(sale.status == SaleStatus.Pending, "Sale is not pending");
+        require(msg.sender == sale.buyerWallet, "Only buyer can request refund");
+        require(
+            block.timestamp >= sale.createdAt + REFUND_TIMEOUT,
+            "Refund timeout not reached"
+        );
+
+        sale.status = SaleStatus.Refunded;
+
+        (bool refunded, ) = sale.buyerWallet.call{value: sale.amount}("");
+        require(refunded, "Refund failed");
+
+        emit SaleRefunded(saleId);
+    }
+
     function verifyFileHash(
         string memory fileUrl,
         string memory hashToCheck
-    )
-        public
-        view
-        returns (bool)
-    {
+    ) public view returns (bool) {
         return keccak256(abi.encodePacked(files[fileUrl].fileHash))
             == keccak256(abi.encodePacked(hashToCheck));
     }
 
-
-    // -----------------------------------
-    // OPTIONAL: GET FULL FILE DATA
-    // -----------------------------------
-    function getFileData(string memory fileUrl)
+    function getFileData(
+        string memory fileUrl
+    )
         public
         view
         returns (
@@ -105,6 +184,17 @@ contract MarketplaceTwo {
         )
     {
         FileData memory f = files[fileUrl];
-        return (f.listerWallet, f.webId, f.fileUrl, f.fileHash, f.price);
+
+        return (
+            f.listerWallet,
+            f.webId,
+            f.fileUrl,
+            f.fileHash,
+            f.price
+        );
+    }
+
+    function getSaleStatus(uint256 saleId) public view returns (SaleStatus) {
+        return sales[saleId].status;
     }
 }

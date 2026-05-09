@@ -144,14 +144,20 @@ const [listingPrices, setListingPrices] = useState<{ [fileUrl: string]: string }
                         onClick={async () => {
                             try {
                                 console.log("🛒 Purchasing on blockchain...");
-                                await purchaseFile(l.fileUrl);
+                                const saleId = await purchaseFile(
+    l.fileUrl,
+    session.info.webId!
+);
 
-                                await sendPurchaseRequest(
-                                    session,
-                                    l.webId,                 // seller webId
-                                    l.fileUrl,
-                                    session.info.webId!      // buyer webId
-                                );
+await sendPurchaseRequest(
+    session,
+    l.webId,
+    l.fileUrl,
+    session.info.webId!,
+    saleId
+);
+
+alert("Purchase request sent! Payment is locked until seller approval.");
 
                                 alert("Purchase request sent! Seller must approve.");
 

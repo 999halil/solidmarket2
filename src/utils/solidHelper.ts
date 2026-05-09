@@ -72,19 +72,24 @@ export const setFilePermissions = async (
     }
 };
 
-export async function sendPurchaseRequest(session: Session, sellerWebId: String, fileUrl: String, buyerWebId: String) {
+export async function sendPurchaseRequest(
+    session: Session,
+    sellerWebId: string,
+    fileUrl: string,
+    buyerWebId: string,
+    saleId: string
+) {
     const sellerPod = sellerWebId.replace("/profile/card#me", "/");
     const inboxUrl = `${sellerPod}inbox/marketplace/`;
 
-    // Ensure inbox exists
     await ensureContainerExists(session, inboxUrl);
 
-    // Create a unique notification file
     const timestamp = Date.now();
     const noteUrl = `${inboxUrl}purchase-${timestamp}.json`;
 
     const notification = {
         type: "PurchaseRequest",
+        saleId,
         fileUrl,
         buyerWebId,
         timestamp
