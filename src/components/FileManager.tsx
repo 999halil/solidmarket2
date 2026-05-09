@@ -27,7 +27,7 @@ const FileManager: React.FC = () => {
     const [listings, setListings] = useState<any[]>([]);
     const [notListed, setNotListed] = useState<string[]>([]);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [listingPrice, setListingPrice] = useState("");
+const [listingPrices, setListingPrices] = useState<{ [fileUrl: string]: string }>({});
 
     const podUrl = session.info.webId?.replace("/profile/card#me", "/");
 
@@ -68,17 +68,30 @@ const FileManager: React.FC = () => {
     };
 
     const createListing = async (fileUrl: string) => {
-        const response = await session.fetch(fileUrl);
-        const blob = await response.blob();
-        const hash = await computeSHA256(new File([blob], "file"));
+    const price = listingPrices[fileUrl];
 
-        await storeListing(fileUrl, hash, listingPrice, session.info.webId!);
+    if (!price) {
+        alert("Please enter a price for this file.");
+        return;
+    }
 
-        await loadBlockchainListings();
-        await loadUploads();
-        setListingPrice("");
-        alert("Listing created!");
-    };
+    const response = await session.fetch(fileUrl);
+    const blob = await response.blob();
+    const hash = await computeSHA256(new File([blob], "file"));
+
+    await storeListing(fileUrl, hash, price, session.info.webId!);
+
+    await loadBlockchainListings();
+    await loadUploads();
+
+    setListingPrices((prev) => {
+        const updated = { ...prev };
+        delete updated[fileUrl];
+        return updated;
+    });
+
+    alert("Listing created!");
+};
 
     return (
         <div style={{ padding: 20 }}>
@@ -90,14 +103,18 @@ const FileManager: React.FC = () => {
                 <div key={url} style={{ borderBottom: "1px solid #ccc", padding: 10 }}>
                     <span>{url.split("/").pop()}</span>
 
-                    <input
-                        type="text"
-                        placeholder="Set price in ETH"
-                        value={listingPrice}
-                        onChange={(e) => setListingPrice(e.target.value)}
-                        style={{ marginLeft: 10 }}
-                    />
-
+                   <input
+    type="text"
+    placeholder="Set price in ETH"
+    value={listingPrices[url] || ""}
+    onChange={(e) =>
+        setListingPrices((prev) => ({
+            ...prev,
+            [url]: e.target.value,
+        }))
+    }
+    style={{ marginLeft: 10 }}
+/>
                     <button
                         style={{ marginLeft: 10 }}
                         onClick={() => createListing(url)}

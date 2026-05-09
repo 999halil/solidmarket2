@@ -1,6 +1,7 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
+<<<<<<< HEAD
     "C:\\Users\\halil\\OneDrive\\Desktop\\t\\solid-marketplace-master1\\contracts\\FileIntegrity.sol": {
       "lastModificationDate": 1764255491487,
       "contentHash": "abde2476cafe44f8f6d94416fda68e7f",
@@ -111,6 +112,10 @@
     },
     "C:\\Users\\halil\\OneDrive\\Desktop\\solidmarket2\\contracts\\FileIntegrity.sol": {
       "lastModificationDate": 1764776742414,
+=======
+    "C:\\Users\\halil\\OneDrive\\Desktop\\solidmarket\\contracts\\FileIntegrity.sol": {
+      "lastModificationDate": 1778322855643,
+>>>>>>> b817f06 (update)
       "contentHash": "58b953f32ca6fa2ce2ff725cec7a3b3b",
       "sourceName": "contracts/FileIntegrity.sol",
       "solcConfig": {
@@ -145,8 +150,13 @@
         "FileIntegrity"
       ]
     },
+<<<<<<< HEAD
     "C:\\Users\\halil\\OneDrive\\Desktop\\solidmarket2\\contracts\\Lock.sol": {
       "lastModificationDate": 1764776742414,
+=======
+    "C:\\Users\\halil\\OneDrive\\Desktop\\solidmarket\\contracts\\Lock.sol": {
+      "lastModificationDate": 1778322855643,
+>>>>>>> b817f06 (update)
       "contentHash": "642fa52ab63153524e2438211810ea7e",
       "sourceName": "contracts/Lock.sol",
       "solcConfig": {
@@ -181,8 +191,13 @@
         "Lock"
       ]
     },
+<<<<<<< HEAD
     "C:\\Users\\halil\\OneDrive\\Desktop\\solidmarket2\\contracts\\Marketplace.sol": {
       "lastModificationDate": 1764776742414,
+=======
+    "C:\\Users\\halil\\OneDrive\\Desktop\\solidmarket\\contracts\\Marketplace.sol": {
+      "lastModificationDate": 1778322855643,
+>>>>>>> b817f06 (update)
       "contentHash": "24173df8fc08ea24a6346dac897970ec",
       "sourceName": "contracts/Marketplace.sol",
       "solcConfig": {
@@ -217,8 +232,13 @@
         "Marketplace"
       ]
     },
+<<<<<<< HEAD
     "C:\\Users\\halil\\OneDrive\\Desktop\\solidmarket2\\contracts\\MatketplaceTwo.sol": {
       "lastModificationDate": 1765194187975,
+=======
+    "C:\\Users\\halil\\OneDrive\\Desktop\\solidmarket\\contracts\\MatketplaceTwo.sol": {
+      "lastModificationDate": 1778322855643,
+>>>>>>> b817f06 (update)
       "contentHash": "444c0d657344e6aa10ceca2ffb88de00",
       "sourceName": "contracts/MatketplaceTwo.sol",
       "solcConfig": {
