@@ -103,7 +103,7 @@ const [listingPrices, setListingPrices] = useState<{ [fileUrl: string]: string }
                 <div key={url} style={{ borderBottom: "1px solid #ccc", padding: 10 }}>
                     <span>{url.split("/").pop()}</span>
 
-                   <input
+                  <input
     type="text"
     placeholder="Set price in ETH"
     value={listingPrices[url] || ""}
