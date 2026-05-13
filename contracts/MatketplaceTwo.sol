@@ -199,28 +199,32 @@ emit FileStored(
     }
 
     function getFileData(
-        string memory fileUrl
+    string memory fileUrl
+)
+    public
+    view
+    returns (
+        address,
+        string memory,
+        string memory,
+        string memory,
+        uint256,
+        bool,
+        uint256
     )
-        public
-        view
-        returns (
-            address,
-            string memory,
-            string memory,
-            string memory,
-            uint256
-        )
-    {
-        FileData memory f = files[fileUrl];
+{
+    FileData memory f = files[fileUrl];
 
-        return (
-            f.listerWallet,
-            f.webId,
-            f.fileUrl,
-            f.fileHash,
-            f.price
-        );
-    }
+    return (
+        f.listerWallet,
+        f.webId,
+        f.fileUrl,
+        f.fileHash,
+        f.price,
+        f.active,
+        f.listedAt
+    );
+}
 
     function getSaleStatus(uint256 saleId) public view returns (SaleStatus) {
         return sales[saleId].status;
