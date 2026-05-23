@@ -69,7 +69,13 @@ msgs.push({
 };
 const reject = async (msg: PurchaseRequestMessage) => {
     try {
+                const start = performance.now();
+
         await rejectSale(msg.saleId);
+                const end = performance.now();
+        console.log("PERF_RESULT,Reject sale," + Math.round(end - start));
+
+
 
         alert("Sale rejected. Buyer has been refunded.");
         await loadMessages();

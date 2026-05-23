@@ -13,6 +13,7 @@ const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
 const ABI = [
 "event FileStored(address indexed listerWallet, string webId, string fileUrl, string fileHash, uint256 price, uint256 listedAt)",
+"function getFileData(string fileUrl) public view returns (address, string, string, string, uint256, bool, uint256)",
 "event ListingDeleted(string fileUrl, address indexed listerWallet)",
 "function deleteListing(string fileUrl) public",    "event SaleRequested(uint256 indexed saleId, string fileUrl, address indexed buyerWallet, address indexed sellerWallet, string buyerWebId, uint256 amount)",
     "event SaleApproved(uint256 indexed saleId)",
@@ -111,36 +112,66 @@ export const verifyFileHash = async (fileUrl: string, fileHash: string) => {
 
 // LOAD ALL LISTINGS (from events)
 export const loadAllListings = async () => {
-    if (!window.ethereum) throw new Error("Ethereum wallet required");
+  if (!window.ethereum) throw new Error("Ethereum wallet required");
 
-    const provider = new BrowserProvider(window.ethereum);
-    const contract = new Contract(CONTRACT_ADDRESS, ABI, provider);
+  const provider = new BrowserProvider(window.ethereum);
+  const contract = new Contract(CONTRACT_ADDRESS, ABI, provider);
 
-    const storedEvents = await contract.queryFilter("FileStored");
-    const deletedEvents = await contract.queryFilter("ListingDeleted");
+  const storedEvents = await contract.queryFilter(
+    contract.filters.FileStored(),
+    0,
+    "latest"
+  );
 
-    const deletedUrls = new Set(
-        deletedEvents.map((ev: any) => ev.args.fileUrl)
-    );
+  console.log("FileStored events found:", storedEvents.length);
 
-    const listings = await Promise.all(
-        storedEvents.map(async (ev: any) => {
-            const block = await provider.getBlock(ev.blockNumber);
+  const uniqueFileUrls = Array.from(
+    new Set(
+      storedEvents
+        .map((ev: any) => ev.args?.fileUrl)
+        .filter((url: string | undefined) => !!url)
+    )
+  );
 
-            return {
-                wallet: ev.args.listerWallet,
-                webId: ev.args.webId,
-                fileUrl: ev.args.fileUrl,
-                fileHash: ev.args.fileHash,
-                price: ethers.formatEther(ev.args.price),
-                listedAt: ev.args.listedAt
-                    ? Number(ev.args.listedAt)
-                    : block?.timestamp,
-            };
-        })
-    );
+  console.log("Unique listed file URLs:", uniqueFileUrls);
 
-    return listings.filter((listing) => !deletedUrls.has(listing.fileUrl));
+  const listings = await Promise.all(
+    uniqueFileUrls.map(async (fileUrl: string) => {
+      try {
+        const data = await contract.getFileData(fileUrl);
+
+        const wallet = data[0];
+        const webId = data[1];
+        const returnedFileUrl = data[2];
+        const fileHash = data[3];
+        const price = data[4];
+        const active = data[5];
+        const listedAt = data[6];
+
+        if (!active) {
+          return null;
+        }
+
+        return {
+          wallet,
+          webId,
+          fileUrl: returnedFileUrl,
+          fileHash,
+          price: ethers.formatEther(price),
+          listedAt: Number(listedAt),
+        };
+      } catch (err) {
+        console.error("Failed to load listing state for:", fileUrl, err);
+        return null;
+      }
+    })
+  );
+
+  const activeListings = listings.filter((listing) => listing !== null);
+
+  console.log("Active listings loaded:", activeListings);
+
+  return activeListings;
 };
 export const approveSale = async (saleId: string | number) => {
     const contract = await getContract();

@@ -49,8 +49,7 @@ const FileManager: React.FC = () => {
             (listing: any) => listing.webId === session.info.webId
         );
         const end = performance.now();
-        console.log("PERF_RESULT,Load marketplace listings," + Math.round(end - start));
-
+console.log("PERF_RESULT,Load own active listings," + Math.round(end - start));
 
         setListings(myListings);
     };
@@ -62,7 +61,11 @@ const FileManager: React.FC = () => {
         if (!confirmed) return;
 
         try {
+                const start = performance.now();
+
             await deleteListing(fileUrl);
+               const end = performance.now();
+    console.log("PERF_RESULT,Delete listing," + Math.round(end - start));
 
             await loadBlockchainListings();
             await loadUploads();
@@ -87,7 +90,7 @@ const FileManager: React.FC = () => {
         setUploadedFiles(files);
 
         const chainListings = await loadAllListings();
-        const listedUrls = chainListings.map((l) => l.fileUrl);
+        const listedUrls = chainListings.map((l) => l?.fileUrl);
 
         setNotListed(files.filter((f) => !listedUrls.includes(f)));
     };
@@ -125,7 +128,6 @@ const FileManager: React.FC = () => {
     };
 
     const createListing = async (fileUrl: string) => {
-            const start = performance.now();
 
         const price = listingPrices[fileUrl];
 
@@ -133,6 +135,7 @@ const FileManager: React.FC = () => {
             alert("Please enter a price for this file.");
             return;
         }
+        const start = performance.now();
 
         const response = await session.fetch(fileUrl);
         const blob = await response.blob();

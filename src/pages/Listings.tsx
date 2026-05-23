@@ -13,11 +13,15 @@ const Listings: React.FC = () => {
         setLoading(true);
 
         try {
+                    const start = performance.now();
+
             const data = await loadAllListings();
 
             const otherListings = data.filter(
                 (listing: any) => listing.webId !== session.info.webId
             );
+        const end = performance.now();
+        console.log("PERF_RESULT,Load marketplace listings," + Math.round(end - start));
 
             setListings(otherListings);
         } catch (err) {
