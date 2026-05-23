@@ -40,6 +40,7 @@ const BlockchainView = () => {
             />
             <button
                 onClick={async () =>
+                    
                     setHashCheck(await verifyFileHash(fileUrl, hashInput))
                 }
             >

@@ -42,6 +42,8 @@ const Listings: React.FC = () => {
 
     const buyListing = async (listing: any) => {
         try {
+            const start = performance.now();
+
             const saleId = await purchaseFile(
                 listing.fileUrl,
                 session.info.webId!
@@ -54,6 +56,8 @@ const Listings: React.FC = () => {
                 session.info.webId!,
                 saleId
             );
+            const end = performance.now();
+            console.log("PERF_RESULT,Purchase listing," + Math.round(end - start));
 
             alert("Purchase request sent! Payment is locked until seller approval.");
         } catch (err) {

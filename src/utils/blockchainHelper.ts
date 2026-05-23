@@ -1,5 +1,5 @@
 // utils/blockchainHelper.ts
-import { BrowserProvider, Contract } from "ethers";
+import { BrowserProvider, Contract, Result } from "ethers";
 import { ethers } from "ethers";
 
 // Extend the Window type to recognize Ethereum
@@ -98,8 +98,15 @@ export const purchaseFile = async (
 
 // VERIFY HASH
 export const verifyFileHash = async (fileUrl: string, fileHash: string) => {
+            const start = performance.now();
+
     const contract = await getContract();
-    return await contract.verifyFileHash(fileUrl, fileHash);
+    const result = await contract.verifyFileHash(fileUrl,fileHash);
+                const end = performance.now();
+        console.log("PERF_RESULT,Verify hash," + Math.round(end - start));
+
+    
+    return result;
 };
 
 // LOAD ALL LISTINGS (from events)

@@ -42,19 +42,29 @@ describe("MarketplaceTwo gas usage", function () {
     await marketplace.waitForDeployment();
   });
 
-  async function measureTx(label, txPromise) {
+  function printGasResult(group, operation, gasUsed, gasPriceWei, feeEth) {
+    console.log(
+      `GAS_RESULT,${group},${operation},${gasUsed.toString()},${gasPriceWei.toString()},${feeEth}`
+    );
+  }
+
+  async function measureTx(group, operation, txPromise) {
     const tx = await txPromise;
     const receipt = await tx.wait();
 
     const gasUsed = receipt.gasUsed;
-    const gasPrice = receipt.gasPrice ?? 0n;
-    const feeWei = gasUsed * gasPrice;
+    const gasPriceWei = receipt.gasPrice ?? 0n;
+    const feeWei = gasUsed * gasPriceWei;
+    const feeEth = ethers.formatEther(feeWei);
+
+    printGasResult(group, operation, gasUsed, gasPriceWei, feeEth);
 
     return {
-      label,
+      group,
+      operation,
       gasUsed: gasUsed.toString(),
-      gasPriceWei: gasPrice.toString(),
-      feeEth: ethers.formatEther(feeWei),
+      gasPriceWei: gasPriceWei.toString(),
+      feeEth,
     };
   }
 
@@ -63,27 +73,7 @@ describe("MarketplaceTwo gas usage", function () {
 
     return marketplace
       .connect(seller)
-      .storeFileHashWithPrice(
-        url,
-        data.fileHash,
-        price,
-        data.sellerWebId
-      );
-  }
-
-  async function createPurchase(data, customFileUrl) {
-    const url = customFileUrl ?? data.fileUrl;
-
-    await createListing(data, url);
-
-    const tx = await marketplace
-      .connect(buyer)
-      .purchaseFile(url, data.buyerWebId, { value: price });
-
-    const receipt = await tx.wait();
-    const saleId = await marketplace.saleCounter();
-
-    return { receipt, saleId, url };
+      .storeFileHashWithPrice(url, data.fileHash, price, data.sellerWebId);
   }
 
   describe("Gas per marketplace action", function () {
@@ -92,6 +82,7 @@ describe("MarketplaceTwo gas usage", function () {
 
       results.push(
         await measureTx(
+          "Main actions",
           "Create listing",
           createListing(mediumData)
         )
@@ -99,6 +90,7 @@ describe("MarketplaceTwo gas usage", function () {
 
       results.push(
         await measureTx(
+          "Main actions",
           "Purchase file",
           marketplace
             .connect(buyer)
@@ -108,55 +100,51 @@ describe("MarketplaceTwo gas usage", function () {
         )
       );
 
-      const saleId = await marketplace.saleCounter();
+      let saleId = await marketplace.saleCounter();
 
       results.push(
         await measureTx(
+          "Main actions",
           "Approve sale",
           marketplace.connect(seller).approveSale(saleId)
         )
       );
 
-      const secondFileUrl =
-        "https://seller.solidcommunity.net/resources/second-file.txt";
+      const rejectFileUrl =
+        "https://seller.solidcommunity.net/resources/reject-file.txt";
 
-      await createListing(mediumData, secondFileUrl);
+      await createListing(mediumData, rejectFileUrl);
 
       await marketplace
         .connect(otherBuyer)
-        .purchaseFile(secondFileUrl, mediumData.buyerWebId, {
+        .purchaseFile(rejectFileUrl, mediumData.buyerWebId, {
           value: price,
         });
 
-      const secondSaleId = await marketplace.saleCounter();
+      saleId = await marketplace.saleCounter();
 
       results.push(
         await measureTx(
+          "Main actions",
           "Reject sale",
-          marketplace.connect(seller).rejectSale(secondSaleId)
+          marketplace.connect(seller).rejectSale(saleId)
         )
       );
 
-      const thirdFileUrl =
-        "https://seller.solidcommunity.net/resources/third-file.txt";
+      const deleteFileUrl =
+        "https://seller.solidcommunity.net/resources/delete-file.txt";
+
+      await createListing(mediumData, deleteFileUrl);
 
       results.push(
         await measureTx(
-          "Delete listing",
-          createListing(mediumData, thirdFileUrl)
-        )
-      );
-
-      results.push(
-        await measureTx(
+          "Main actions",
           "Delete active listing",
-          marketplace.connect(seller).deleteListing(thirdFileUrl)
+          marketplace.connect(seller).deleteListing(deleteFileUrl)
         )
       );
 
-      console.table(results);
-
-      expect(results.length).to.equal(6);
+      expect(results.length).to.equal(5);
     });
   });
 
@@ -166,6 +154,7 @@ describe("MarketplaceTwo gas usage", function () {
 
       results.push(
         await measureTx(
+          "Metadata length - listing",
           "Create listing - short metadata",
           createListing(shortData)
         )
@@ -173,6 +162,7 @@ describe("MarketplaceTwo gas usage", function () {
 
       results.push(
         await measureTx(
+          "Metadata length - listing",
           "Create listing - medium metadata",
           createListing(mediumData)
         )
@@ -180,27 +170,28 @@ describe("MarketplaceTwo gas usage", function () {
 
       results.push(
         await measureTx(
+          "Metadata length - listing",
           "Create listing - long metadata",
           createListing(longData)
         )
       );
 
-      console.table(results);
-
       const shortGas = BigInt(results[0].gasUsed);
       const mediumGas = BigInt(results[1].gasUsed);
       const longGas = BigInt(results[2].gasUsed);
 
-      expect(mediumGas).to.be.greaterThan(shortGas);
-      expect(longGas).to.be.greaterThan(mediumGas);
+      expect(mediumGas > shortGas).to.equal(true);
+      expect(longGas > mediumGas).to.equal(true);
     });
 
     it("compares purchase gas for short, medium, and long buyer metadata", async function () {
       const results = [];
 
       await createListing(shortData);
+
       results.push(
         await measureTx(
+          "Metadata length - purchase",
           "Purchase - short metadata",
           marketplace
             .connect(buyer)
@@ -211,8 +202,10 @@ describe("MarketplaceTwo gas usage", function () {
       );
 
       await createListing(mediumData);
+
       results.push(
         await measureTx(
+          "Metadata length - purchase",
           "Purchase - medium metadata",
           marketplace
             .connect(buyer)
@@ -223,8 +216,10 @@ describe("MarketplaceTwo gas usage", function () {
       );
 
       await createListing(longData);
+
       results.push(
         await measureTx(
+          "Metadata length - purchase",
           "Purchase - long metadata",
           marketplace
             .connect(buyer)
@@ -234,14 +229,12 @@ describe("MarketplaceTwo gas usage", function () {
         )
       );
 
-      console.table(results);
-
       const shortGas = BigInt(results[0].gasUsed);
       const mediumGas = BigInt(results[1].gasUsed);
       const longGas = BigInt(results[2].gasUsed);
 
-      expect(mediumGas).to.be.greaterThan(shortGas);
-      expect(longGas).to.be.greaterThan(mediumGas);
+      expect(mediumGas > shortGas).to.equal(true);
+      expect(longGas > mediumGas).to.equal(true);
     });
   });
 
@@ -251,18 +244,21 @@ describe("MarketplaceTwo gas usage", function () {
 
       for (let i = 1; i <= 20; i++) {
         const url = `https://seller.solidcommunity.net/resources/file-${i}.txt`;
-
-        const result = await measureTx(
-          `Create listing ${i}`,
-          createListing(mediumData, url)
-        );
+        const txPromise = createListing(mediumData, url);
 
         if (i === 1 || i === 10 || i === 20) {
-          results.push(result);
+          results.push(
+            await measureTx(
+              "Listing count stability",
+              `Create listing ${i}`,
+              txPromise
+            )
+          );
+        } else {
+          const tx = await txPromise;
+          await tx.wait();
         }
       }
-
-      console.table(results);
 
       const firstGas = BigInt(results[0].gasUsed);
       const twentiethGas = BigInt(results[2].gasUsed);
@@ -272,9 +268,7 @@ describe("MarketplaceTwo gas usage", function () {
           ? firstGas - twentiethGas
           : twentiethGas - firstGas;
 
-      // The contract does not loop through all listings,
-      // so the gas should remain in the same general range.
-      expect(difference).to.be.lessThan(10000n);
+      expect(difference < 10000n).to.equal(true);
     });
   });
 
@@ -286,8 +280,10 @@ describe("MarketplaceTwo gas usage", function () {
         "https://seller.solidcommunity.net/resources/approve-flow.txt";
 
       await createListing(mediumData, approveUrl);
+
       results.push(
         await measureTx(
+          "Sale outcomes",
           "Purchase - approve flow",
           marketplace
             .connect(buyer)
@@ -301,6 +297,7 @@ describe("MarketplaceTwo gas usage", function () {
 
       results.push(
         await measureTx(
+          "Sale outcomes",
           "Approve sale",
           marketplace.connect(seller).approveSale(saleId)
         )
@@ -310,8 +307,10 @@ describe("MarketplaceTwo gas usage", function () {
         "https://seller.solidcommunity.net/resources/reject-flow.txt";
 
       await createListing(mediumData, rejectUrl);
+
       results.push(
         await measureTx(
+          "Sale outcomes",
           "Purchase - reject flow",
           marketplace
             .connect(buyer)
@@ -325,6 +324,7 @@ describe("MarketplaceTwo gas usage", function () {
 
       results.push(
         await measureTx(
+          "Sale outcomes",
           "Reject sale",
           marketplace.connect(seller).rejectSale(saleId)
         )
@@ -334,8 +334,10 @@ describe("MarketplaceTwo gas usage", function () {
         "https://seller.solidcommunity.net/resources/refund-flow.txt";
 
       await createListing(mediumData, refundUrl);
+
       results.push(
         await measureTx(
+          "Sale outcomes",
           "Purchase - timeout refund flow",
           marketplace
             .connect(buyer)
@@ -352,12 +354,11 @@ describe("MarketplaceTwo gas usage", function () {
 
       results.push(
         await measureTx(
+          "Sale outcomes",
           "Refund after timeout",
           marketplace.connect(buyer).refundAfterTimeout(saleId)
         )
       );
-
-      console.table(results);
 
       expect(results.length).to.equal(6);
     });

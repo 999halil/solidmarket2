@@ -1,0 +1,24 @@
+﻿# Gas measurement averages
+
+| Group | Operation | Runs | Average gas used | Min | Max |
+|---|---|---:|---:|---:|---:|
+| Listing count stability | Create listing 1 | 10 | 279690 | 279690 | 279690 |
+| Listing count stability | Create listing 10 | 10 | 279702 | 279702 | 279702 |
+| Listing count stability | Create listing 20 | 10 | 279702 | 279702 | 279702 |
+| Main actions | Approve sale | 10 | 56847 | 56847 | 56847 |
+| Main actions | Create listing | 10 | 279726 | 279726 | 279726 |
+| Main actions | Delete active listing | 10 | 34340 | 34340 | 34340 |
+| Main actions | Purchase file | 10 | 308460 | 308460 | 308460 |
+| Main actions | Reject sale | 10 | 61325 | 61325 | 61325 |
+| Metadata length - listing | Create listing - long metadata | 10 | 440129 | 440129 | 440129 |
+| Metadata length - listing | Create listing - medium metadata | 10 | 279726 | 279726 | 279726 |
+| Metadata length - listing | Create listing - short metadata | 10 | 188720 | 188720 | 188720 |
+| Metadata length - purchase | Purchase - long metadata | 10 | 383560 | 383560 | 383560 |
+| Metadata length - purchase | Purchase - medium metadata | 10 | 291360 | 291360 | 291360 |
+| Metadata length - purchase | Purchase - short metadata | 10 | 217563 | 217563 | 217563 |
+| Sale outcomes | Approve sale | 10 | 56847 | 56847 | 56847 |
+| Sale outcomes | Purchase - approve flow | 10 | 308496 | 308496 | 308496 |
+| Sale outcomes | Purchase - reject flow | 10 | 291384 | 291384 | 291384 |
+| Sale outcomes | Purchase - timeout refund flow | 10 | 291384 | 291384 | 291384 |
+| Sale outcomes | Refund after timeout | 10 | 59144 | 59144 | 59144 |
+| Sale outcomes | Reject sale | 10 | 61325 | 61325 | 61325 |

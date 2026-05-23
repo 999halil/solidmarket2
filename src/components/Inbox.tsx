@@ -44,6 +44,8 @@ msgs.push({
 
  const approve = async (msg: PurchaseRequestMessage) => {
     try {
+            const start = performance.now();
+
         await debugAccess(session, msg.fileUrl);
 
         await grantBuyerReadAccess(
@@ -53,6 +55,9 @@ msgs.push({
         );
 
         await approveSale(msg.saleId);
+            const end = performance.now();
+    console.log("PERF_RESULT,Approve sale," + Math.round(end - start));
+
 
         alert("Access granted and payment released to seller!");
         await loadMessages();

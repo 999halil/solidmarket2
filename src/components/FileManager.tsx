@@ -40,39 +40,49 @@ const FileManager: React.FC = () => {
     }, [podUrl]);
 
     const loadBlockchainListings = async () => {
-    const chainListings = await loadAllListings();
+            const start = performance.now();
 
-    const myListings = chainListings.filter(
-        (listing: any) => listing.webId === session.info.webId
-    );
+        const chainListings = await loadAllListings();
+        
 
-    setListings(myListings);
-};
-const handleDeleteListing = async (fileUrl: string) => {
-    const confirmed = window.confirm(
-        "Are you sure you want to delete this listing? The file will remain in your Solid Pod."
-    );
+        const myListings = chainListings.filter(
+            (listing: any) => listing.webId === session.info.webId
+        );
+        const end = performance.now();
+        console.log("PERF_RESULT,Load marketplace listings," + Math.round(end - start));
 
-    if (!confirmed) return;
 
-    try {
-        await deleteListing(fileUrl);
+        setListings(myListings);
+    };
+    const handleDeleteListing = async (fileUrl: string) => {
+        const confirmed = window.confirm(
+            "Are you sure you want to delete this listing? The file will remain in your Solid Pod."
+        );
 
-        await loadBlockchainListings();
-        await loadUploads();
+        if (!confirmed) return;
 
-        alert("Listing deleted.");
-    } catch (err) {
-        console.error("Failed to delete listing:", err);
-        alert("Failed to delete listing.");
-    }
-};
+        try {
+            await deleteListing(fileUrl);
+
+            await loadBlockchainListings();
+            await loadUploads();
+
+            alert("Listing deleted.");
+        } catch (err) {
+            console.error("Failed to delete listing:", err);
+            alert("Failed to delete listing.");
+        }
+    };
 
     const loadUploads = async () => {
         if (!podUrl) return;
+        const start = performance.now();
 
         await ensureContainerExists(session, `${podUrl}resources/`);
         const files = await listFilesInPod(session, podUrl);
+        const end = performance.now();
+        console.log("PERF_RESULT,Load uploaded files," + Math.round(end - start));
+
 
         setUploadedFiles(files);
 
@@ -86,7 +96,12 @@ const handleDeleteListing = async (fileUrl: string) => {
         if (!selectedFile || !podUrl) return;
 
         try {
+            const start = performance.now();
+
             const fileUrl = await uploadFileToPod(session, selectedFile, podUrl);
+            const end = performance.now();
+            console.log("PERF_RESULT,Upload file to Pod," + Math.round(end - start));
+
 
             if (fileUrl) {
                 // Immediately update UI without waiting for Pod refresh consistency
@@ -110,6 +125,8 @@ const handleDeleteListing = async (fileUrl: string) => {
     };
 
     const createListing = async (fileUrl: string) => {
+            const start = performance.now();
+
         const price = listingPrices[fileUrl];
 
         if (!price) {
@@ -123,6 +140,9 @@ const handleDeleteListing = async (fileUrl: string) => {
         await prepareMarketplaceInbox(session);
 
         await storeListing(fileUrl, hash, price, session.info.webId!);
+            const end = performance.now();
+    console.log("PERF_RESULT,Create listing," + Math.round(end - start));
+
 
         await loadBlockchainListings();
         await loadUploads();
@@ -184,26 +204,26 @@ const handleDeleteListing = async (fileUrl: string) => {
 
             {listings.length === 0 && <p>You have no active listings.</p>}
 
-{listings.map((l, index) => (
-    <div key={index} style={{ borderBottom: "1px solid #ccc", padding: 10 }}>
-        <p><strong>File:</strong> {l.fileUrl.split("/").pop()}</p>
-        <p><strong>Price:</strong> {l.price} ETH</p>
-        <p><strong>Listed at:</strong> {
-            l.listedAt
-                ? new Date(l.listedAt * 1000).toLocaleString()
-                : "Unknown"
-        }</p>
-        <p><strong>File URL:</strong> {l.fileUrl}</p>
-        <p><strong>Hash:</strong> {l.fileHash}</p>
+            {listings.map((l, index) => (
+                <div key={index} style={{ borderBottom: "1px solid #ccc", padding: 10 }}>
+                    <p><strong>File:</strong> {l.fileUrl.split("/").pop()}</p>
+                    <p><strong>Price:</strong> {l.price} ETH</p>
+                    <p><strong>Listed at:</strong> {
+                        l.listedAt
+                            ? new Date(l.listedAt * 1000).toLocaleString()
+                            : "Unknown"
+                    }</p>
+                    <p><strong>File URL:</strong> {l.fileUrl}</p>
+                    <p><strong>Hash:</strong> {l.fileHash}</p>
 
-        <button
-            onClick={() => handleDeleteListing(l.fileUrl)}
-            style={{ marginTop: 10 }}
-        >
-            Delete Listing
-        </button>
-    </div>
-))}
+                    <button
+                        onClick={() => handleDeleteListing(l.fileUrl)}
+                        style={{ marginTop: 10 }}
+                    >
+                        Delete Listing
+                    </button>
+                </div>
+            ))}
 
 
             <h2 style={{ marginTop: 40 }}>⬆️ Upload New File</h2>

@@ -1,0 +1,201 @@
+﻿run,group,operation,gasUsed,gasPriceWei,feeEth
+1,Main actions,Create listing,279726,1783020445,0.00049875717699807
+1,Main actions,Purchase file,308460,1686968150,0.000520362195549
+1,Main actions,Approve sale,56847,1602862983,0.000091117951994601
+1,Main actions,Reject sale,61325,1406290739,0.000086240779569175
+1,Main actions,Delete active listing,34340,1312077280,0.0000450567337952
+1,Metadata length - listing,Create listing - short metadata,188720,1244442810,0.0002348512471032
+1,Metadata length - listing,Create listing - medium metadata,279726,1214271886,0.000339663417583236
+1,Metadata length - listing,Create listing - long metadata,440129,1187987379,0.000522867697131891
+1,Metadata length - purchase,Purchase - short metadata,217563,1129570565,0.000245752760833095
+1,Metadata length - purchase,Purchase - medium metadata,291360,1099672844,0.00032040067982784
+1,Metadata length - purchase,Purchase - long metadata,383560,1076844542,0.00041303449252952
+1,Listing count stability,Create listing 1,279690,1060390650,0.0002965806608985
+1,Listing count stability,Create listing 10,279702,1018596873,0.000284903582571846
+1,Listing count stability,Create listing 20,279702,1005024284,0.000281107302283368
+1,Sale outcomes,Purchase - approve flow,308496,1003460720,0.00030956361827712
+1,Sale outcomes,Approve sale,56847,1003037027,0.000057019645873869
+1,Sale outcomes,Purchase - reject flow,291384,1002332682,0.000292063706211888
+1,Sale outcomes,Reject sale,61325,1002046761,0.000061450517618325
+1,Sale outcomes,Purchase - timeout refund flow,291384,1001572145,0.00029184209789868
+1,Sale outcomes,Refund after timeout,59144,1001207015,0.00005921538769516
+2,Main actions,Create listing,279726,1783020445,0.00049875717699807
+2,Main actions,Purchase file,308460,1686968150,0.000520362195549
+2,Main actions,Approve sale,56847,1602862983,0.000091117951994601
+2,Main actions,Reject sale,61325,1406290739,0.000086240779569175
+2,Main actions,Delete active listing,34340,1312077280,0.0000450567337952
+2,Metadata length - listing,Create listing - short metadata,188720,1244442810,0.0002348512471032
+2,Metadata length - listing,Create listing - medium metadata,279726,1214271886,0.000339663417583236
+2,Metadata length - listing,Create listing - long metadata,440129,1187987379,0.000522867697131891
+2,Metadata length - purchase,Purchase - short metadata,217563,1129570565,0.000245752760833095
+2,Metadata length - purchase,Purchase - medium metadata,291360,1099672844,0.00032040067982784
+2,Metadata length - purchase,Purchase - long metadata,383560,1076844542,0.00041303449252952
+2,Listing count stability,Create listing 1,279690,1060390650,0.0002965806608985
+2,Listing count stability,Create listing 10,279702,1018596873,0.000284903582571846
+2,Listing count stability,Create listing 20,279702,1005024284,0.000281107302283368
+2,Sale outcomes,Purchase - approve flow,308496,1003460720,0.00030956361827712
+2,Sale outcomes,Approve sale,56847,1003037027,0.000057019645873869
+2,Sale outcomes,Purchase - reject flow,291384,1002332682,0.000292063706211888
+2,Sale outcomes,Reject sale,61325,1002046761,0.000061450517618325
+2,Sale outcomes,Purchase - timeout refund flow,291384,1001572145,0.00029184209789868
+2,Sale outcomes,Refund after timeout,59144,1001207015,0.00005921538769516
+3,Main actions,Create listing,279726,1783020445,0.00049875717699807
+3,Main actions,Purchase file,308460,1686968150,0.000520362195549
+3,Main actions,Approve sale,56847,1602862983,0.000091117951994601
+3,Main actions,Reject sale,61325,1406290739,0.000086240779569175
+3,Main actions,Delete active listing,34340,1312077280,0.0000450567337952
+3,Metadata length - listing,Create listing - short metadata,188720,1244442810,0.0002348512471032
+3,Metadata length - listing,Create listing - medium metadata,279726,1214271886,0.000339663417583236
+3,Metadata length - listing,Create listing - long metadata,440129,1187987379,0.000522867697131891
+3,Metadata length - purchase,Purchase - short metadata,217563,1129570565,0.000245752760833095
+3,Metadata length - purchase,Purchase - medium metadata,291360,1099672844,0.00032040067982784
+3,Metadata length - purchase,Purchase - long metadata,383560,1076844542,0.00041303449252952
+3,Listing count stability,Create listing 1,279690,1060390650,0.0002965806608985
+3,Listing count stability,Create listing 10,279702,1018596873,0.000284903582571846
+3,Listing count stability,Create listing 20,279702,1005024284,0.000281107302283368
+3,Sale outcomes,Purchase - approve flow,308496,1003460720,0.00030956361827712
+3,Sale outcomes,Approve sale,56847,1003037027,0.000057019645873869
+3,Sale outcomes,Purchase - reject flow,291384,1002332682,0.000292063706211888
+3,Sale outcomes,Reject sale,61325,1002046761,0.000061450517618325
+3,Sale outcomes,Purchase - timeout refund flow,291384,1001572145,0.00029184209789868
+3,Sale outcomes,Refund after timeout,59144,1001207015,0.00005921538769516
+4,Main actions,Create listing,279726,1783020445,0.00049875717699807
+4,Main actions,Purchase file,308460,1686968150,0.000520362195549
+4,Main actions,Approve sale,56847,1602862983,0.000091117951994601
+4,Main actions,Reject sale,61325,1406290739,0.000086240779569175
+4,Main actions,Delete active listing,34340,1312077280,0.0000450567337952
+4,Metadata length - listing,Create listing - short metadata,188720,1244442810,0.0002348512471032
+4,Metadata length - listing,Create listing - medium metadata,279726,1214271886,0.000339663417583236
+4,Metadata length - listing,Create listing - long metadata,440129,1187987379,0.000522867697131891
+4,Metadata length - purchase,Purchase - short metadata,217563,1129570565,0.000245752760833095
+4,Metadata length - purchase,Purchase - medium metadata,291360,1099672844,0.00032040067982784
+4,Metadata length - purchase,Purchase - long metadata,383560,1076844542,0.00041303449252952
+4,Listing count stability,Create listing 1,279690,1060390650,0.0002965806608985
+4,Listing count stability,Create listing 10,279702,1018596873,0.000284903582571846
+4,Listing count stability,Create listing 20,279702,1005024284,0.000281107302283368
+4,Sale outcomes,Purchase - approve flow,308496,1003460720,0.00030956361827712
+4,Sale outcomes,Approve sale,56847,1003037027,0.000057019645873869
+4,Sale outcomes,Purchase - reject flow,291384,1002332682,0.000292063706211888
+4,Sale outcomes,Reject sale,61325,1002046761,0.000061450517618325
+4,Sale outcomes,Purchase - timeout refund flow,291384,1001572145,0.00029184209789868
+4,Sale outcomes,Refund after timeout,59144,1001207015,0.00005921538769516
+5,Main actions,Create listing,279726,1783020445,0.00049875717699807
+5,Main actions,Purchase file,308460,1686968150,0.000520362195549
+5,Main actions,Approve sale,56847,1602862983,0.000091117951994601
+5,Main actions,Reject sale,61325,1406290739,0.000086240779569175
+5,Main actions,Delete active listing,34340,1312077280,0.0000450567337952
+5,Metadata length - listing,Create listing - short metadata,188720,1244442810,0.0002348512471032
+5,Metadata length - listing,Create listing - medium metadata,279726,1214271886,0.000339663417583236
+5,Metadata length - listing,Create listing - long metadata,440129,1187987379,0.000522867697131891
+5,Metadata length - purchase,Purchase - short metadata,217563,1129570565,0.000245752760833095
+5,Metadata length - purchase,Purchase - medium metadata,291360,1099672844,0.00032040067982784
+5,Metadata length - purchase,Purchase - long metadata,383560,1076844542,0.00041303449252952
+5,Listing count stability,Create listing 1,279690,1060390650,0.0002965806608985
+5,Listing count stability,Create listing 10,279702,1018596873,0.000284903582571846
+5,Listing count stability,Create listing 20,279702,1005024284,0.000281107302283368
+5,Sale outcomes,Purchase - approve flow,308496,1003460720,0.00030956361827712
+5,Sale outcomes,Approve sale,56847,1003037027,0.000057019645873869
+5,Sale outcomes,Purchase - reject flow,291384,1002332682,0.000292063706211888
+5,Sale outcomes,Reject sale,61325,1002046761,0.000061450517618325
+5,Sale outcomes,Purchase - timeout refund flow,291384,1001572145,0.00029184209789868
+5,Sale outcomes,Refund after timeout,59144,1001207015,0.00005921538769516
+6,Main actions,Create listing,279726,1783020445,0.00049875717699807
+6,Main actions,Purchase file,308460,1686968150,0.000520362195549
+6,Main actions,Approve sale,56847,1602862983,0.000091117951994601
+6,Main actions,Reject sale,61325,1406290739,0.000086240779569175
+6,Main actions,Delete active listing,34340,1312077280,0.0000450567337952
+6,Metadata length - listing,Create listing - short metadata,188720,1244442810,0.0002348512471032
+6,Metadata length - listing,Create listing - medium metadata,279726,1214271886,0.000339663417583236
+6,Metadata length - listing,Create listing - long metadata,440129,1187987379,0.000522867697131891
+6,Metadata length - purchase,Purchase - short metadata,217563,1129570565,0.000245752760833095
+6,Metadata length - purchase,Purchase - medium metadata,291360,1099672844,0.00032040067982784
+6,Metadata length - purchase,Purchase - long metadata,383560,1076844542,0.00041303449252952
+6,Listing count stability,Create listing 1,279690,1060390650,0.0002965806608985
+6,Listing count stability,Create listing 10,279702,1018596873,0.000284903582571846
+6,Listing count stability,Create listing 20,279702,1005024284,0.000281107302283368
+6,Sale outcomes,Purchase - approve flow,308496,1003460720,0.00030956361827712
+6,Sale outcomes,Approve sale,56847,1003037027,0.000057019645873869
+6,Sale outcomes,Purchase - reject flow,291384,1002332682,0.000292063706211888
+6,Sale outcomes,Reject sale,61325,1002046761,0.000061450517618325
+6,Sale outcomes,Purchase - timeout refund flow,291384,1001572145,0.00029184209789868
+6,Sale outcomes,Refund after timeout,59144,1001207015,0.00005921538769516
+7,Main actions,Create listing,279726,1783020445,0.00049875717699807
+7,Main actions,Purchase file,308460,1686968150,0.000520362195549
+7,Main actions,Approve sale,56847,1602862983,0.000091117951994601
+7,Main actions,Reject sale,61325,1406290739,0.000086240779569175
+7,Main actions,Delete active listing,34340,1312077280,0.0000450567337952
+7,Metadata length - listing,Create listing - short metadata,188720,1244442810,0.0002348512471032
+7,Metadata length - listing,Create listing - medium metadata,279726,1214271886,0.000339663417583236
+7,Metadata length - listing,Create listing - long metadata,440129,1187987379,0.000522867697131891
+7,Metadata length - purchase,Purchase - short metadata,217563,1129570565,0.000245752760833095
+7,Metadata length - purchase,Purchase - medium metadata,291360,1099672844,0.00032040067982784
+7,Metadata length - purchase,Purchase - long metadata,383560,1076844542,0.00041303449252952
+7,Listing count stability,Create listing 1,279690,1060390650,0.0002965806608985
+7,Listing count stability,Create listing 10,279702,1018596873,0.000284903582571846
+7,Listing count stability,Create listing 20,279702,1005024284,0.000281107302283368
+7,Sale outcomes,Purchase - approve flow,308496,1003460720,0.00030956361827712
+7,Sale outcomes,Approve sale,56847,1003037027,0.000057019645873869
+7,Sale outcomes,Purchase - reject flow,291384,1002332682,0.000292063706211888
+7,Sale outcomes,Reject sale,61325,1002046761,0.000061450517618325
+7,Sale outcomes,Purchase - timeout refund flow,291384,1001572145,0.00029184209789868
+7,Sale outcomes,Refund after timeout,59144,1001207015,0.00005921538769516
+8,Main actions,Create listing,279726,1783020445,0.00049875717699807
+8,Main actions,Purchase file,308460,1686968150,0.000520362195549
+8,Main actions,Approve sale,56847,1602862983,0.000091117951994601
+8,Main actions,Reject sale,61325,1406290739,0.000086240779569175
+8,Main actions,Delete active listing,34340,1312077280,0.0000450567337952
+8,Metadata length - listing,Create listing - short metadata,188720,1244442810,0.0002348512471032
+8,Metadata length - listing,Create listing - medium metadata,279726,1214271886,0.000339663417583236
+8,Metadata length - listing,Create listing - long metadata,440129,1187987379,0.000522867697131891
+8,Metadata length - purchase,Purchase - short metadata,217563,1129570565,0.000245752760833095
+8,Metadata length - purchase,Purchase - medium metadata,291360,1099672844,0.00032040067982784
+8,Metadata length - purchase,Purchase - long metadata,383560,1076844542,0.00041303449252952
+8,Listing count stability,Create listing 1,279690,1060390650,0.0002965806608985
+8,Listing count stability,Create listing 10,279702,1018596873,0.000284903582571846
+8,Listing count stability,Create listing 20,279702,1005024284,0.000281107302283368
+8,Sale outcomes,Purchase - approve flow,308496,1003460720,0.00030956361827712
+8,Sale outcomes,Approve sale,56847,1003037027,0.000057019645873869
+8,Sale outcomes,Purchase - reject flow,291384,1002332682,0.000292063706211888
+8,Sale outcomes,Reject sale,61325,1002046761,0.000061450517618325
+8,Sale outcomes,Purchase - timeout refund flow,291384,1001572145,0.00029184209789868
+8,Sale outcomes,Refund after timeout,59144,1001207015,0.00005921538769516
+9,Main actions,Create listing,279726,1783020445,0.00049875717699807
+9,Main actions,Purchase file,308460,1686968150,0.000520362195549
+9,Main actions,Approve sale,56847,1602862983,0.000091117951994601
+9,Main actions,Reject sale,61325,1406290739,0.000086240779569175
+9,Main actions,Delete active listing,34340,1312077280,0.0000450567337952
+9,Metadata length - listing,Create listing - short metadata,188720,1244442810,0.0002348512471032
+9,Metadata length - listing,Create listing - medium metadata,279726,1214271886,0.000339663417583236
+9,Metadata length - listing,Create listing - long metadata,440129,1187987379,0.000522867697131891
+9,Metadata length - purchase,Purchase - short metadata,217563,1129570565,0.000245752760833095
+9,Metadata length - purchase,Purchase - medium metadata,291360,1099672844,0.00032040067982784
+9,Metadata length - purchase,Purchase - long metadata,383560,1076844542,0.00041303449252952
+9,Listing count stability,Create listing 1,279690,1060390650,0.0002965806608985
+9,Listing count stability,Create listing 10,279702,1018596873,0.000284903582571846
+9,Listing count stability,Create listing 20,279702,1005024284,0.000281107302283368
+9,Sale outcomes,Purchase - approve flow,308496,1003460720,0.00030956361827712
+9,Sale outcomes,Approve sale,56847,1003037027,0.000057019645873869
+9,Sale outcomes,Purchase - reject flow,291384,1002332682,0.000292063706211888
+9,Sale outcomes,Reject sale,61325,1002046761,0.000061450517618325
+9,Sale outcomes,Purchase - timeout refund flow,291384,1001572145,0.00029184209789868
+9,Sale outcomes,Refund after timeout,59144,1001207015,0.00005921538769516
+10,Main actions,Create listing,279726,1783020445,0.00049875717699807
+10,Main actions,Purchase file,308460,1686968150,0.000520362195549
+10,Main actions,Approve sale,56847,1602862983,0.000091117951994601
+10,Main actions,Reject sale,61325,1406290739,0.000086240779569175
+10,Main actions,Delete active listing,34340,1312077280,0.0000450567337952
+10,Metadata length - listing,Create listing - short metadata,188720,1244442810,0.0002348512471032
+10,Metadata length - listing,Create listing - medium metadata,279726,1214271886,0.000339663417583236
+10,Metadata length - listing,Create listing - long metadata,440129,1187987379,0.000522867697131891
+10,Metadata length - purchase,Purchase - short metadata,217563,1129570565,0.000245752760833095
+10,Metadata length - purchase,Purchase - medium metadata,291360,1099672844,0.00032040067982784
+10,Metadata length - purchase,Purchase - long metadata,383560,1076844542,0.00041303449252952
+10,Listing count stability,Create listing 1,279690,1060390650,0.0002965806608985
+10,Listing count stability,Create listing 10,279702,1018596873,0.000284903582571846
+10,Listing count stability,Create listing 20,279702,1005024284,0.000281107302283368
+10,Sale outcomes,Purchase - approve flow,308496,1003460720,0.00030956361827712
+10,Sale outcomes,Approve sale,56847,1003037027,0.000057019645873869
+10,Sale outcomes,Purchase - reject flow,291384,1002332682,0.000292063706211888
+10,Sale outcomes,Reject sale,61325,1002046761,0.000061450517618325
+10,Sale outcomes,Purchase - timeout refund flow,291384,1001572145,0.00029184209789868
+10,Sale outcomes,Refund after timeout,59144,1001207015,0.00005921538769516

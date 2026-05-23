@@ -1,0 +1,11 @@
+﻿run,timestamp,exitCode,logFile
+1,2026-05-23 11:54:34,0,.\test-results\MarketplaceTwoGas-20260523-115432\run-01.txt
+2,2026-05-23 11:54:37,0,.\test-results\MarketplaceTwoGas-20260523-115432\run-02.txt
+3,2026-05-23 11:54:38,0,.\test-results\MarketplaceTwoGas-20260523-115432\run-03.txt
+4,2026-05-23 11:54:40,0,.\test-results\MarketplaceTwoGas-20260523-115432\run-04.txt
+5,2026-05-23 11:54:42,0,.\test-results\MarketplaceTwoGas-20260523-115432\run-05.txt
+6,2026-05-23 11:54:44,0,.\test-results\MarketplaceTwoGas-20260523-115432\run-06.txt
+7,2026-05-23 11:54:46,0,.\test-results\MarketplaceTwoGas-20260523-115432\run-07.txt
+8,2026-05-23 11:54:47,0,.\test-results\MarketplaceTwoGas-20260523-115432\run-08.txt
+9,2026-05-23 11:54:49,0,.\test-results\MarketplaceTwoGas-20260523-115432\run-09.txt
+10,2026-05-23 11:54:51,0,.\test-results\MarketplaceTwoGas-20260523-115432\run-10.txt

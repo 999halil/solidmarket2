@@ -1,0 +1,21 @@
+﻿===== RUN 9 / 10 =====
+GAS_RESULT,Main actions,Create listing,279726,1783020445,0.00049875717699807
+GAS_RESULT,Main actions,Purchase file,308460,1686968150,0.000520362195549
+GAS_RESULT,Main actions,Approve sale,56847,1602862983,0.000091117951994601
+GAS_RESULT,Main actions,Reject sale,61325,1406290739,0.000086240779569175
+GAS_RESULT,Main actions,Delete active listing,34340,1312077280,0.0000450567337952
+GAS_RESULT,Metadata length - listing,Create listing - short metadata,188720,1244442810,0.0002348512471032
+GAS_RESULT,Metadata length - listing,Create listing - medium metadata,279726,1214271886,0.000339663417583236
+GAS_RESULT,Metadata length - listing,Create listing - long metadata,440129,1187987379,0.000522867697131891
+GAS_RESULT,Metadata length - purchase,Purchase - short metadata,217563,1129570565,0.000245752760833095
+GAS_RESULT,Metadata length - purchase,Purchase - medium metadata,291360,1099672844,0.00032040067982784
+GAS_RESULT,Metadata length - purchase,Purchase - long metadata,383560,1076844542,0.00041303449252952
+GAS_RESULT,Listing count stability,Create listing 1,279690,1060390650,0.0002965806608985
+GAS_RESULT,Listing count stability,Create listing 10,279702,1018596873,0.000284903582571846
+GAS_RESULT,Listing count stability,Create listing 20,279702,1005024284,0.000281107302283368
+GAS_RESULT,Sale outcomes,Purchase - approve flow,308496,1003460720,0.00030956361827712
+GAS_RESULT,Sale outcomes,Approve sale,56847,1003037027,0.000057019645873869
+GAS_RESULT,Sale outcomes,Purchase - reject flow,291384,1002332682,0.000292063706211888
+GAS_RESULT,Sale outcomes,Reject sale,61325,1002046761,0.000061450517618325
+GAS_RESULT,Sale outcomes,Purchase - timeout refund flow,291384,1001572145,0.00029184209789868
+GAS_RESULT,Sale outcomes,Refund after timeout,59144,1001207015,0.00005921538769516
